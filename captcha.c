@@ -4,8 +4,8 @@
 
 int main(void) {
     int c, prev, primus, sum = 0;
-    primus = prev = getchar();
-    while (c = getchar(), c != EOF) {
+    primus = prev = getc(stdin);
+    while (c = getc_unlocked(stdin), c != EOF) {
         if (prev == c) {
             sum += c - '0';
         }

@@ -1,7 +1,5 @@
 #include <stdio.h>
 
-#define BUF_SIZE 10000
-
 int main(void) {
     int c, prev, primus, sum = 0;
 

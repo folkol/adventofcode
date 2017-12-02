@@ -1,7 +1,7 @@
-"""Calculates the checksum of tabular data á la https://adventofcode.com/2017/day/2."""
+"""Calculates spreadsheet checksum á la https://adventofcode.com/2017/day/2."""
 import fileinput
 
-lines = ([int(x) for x in line.split()] for line in fileinput.input())
-diff = (max(line) - min(line) for line in lines)
+rows = ([int(x) for x in line.split()] for line in fileinput.input())
+ranges = (max(line) - min(line) for line in rows)
 
-print(sum(diff))
+print(sum(ranges))

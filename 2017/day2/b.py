@@ -1,4 +1,4 @@
-"""Calculates spreadsheep checksum á la https://adventofcode.com/2017/day/2."""
+"""Calculates spreadsheet checksum á la https://adventofcode.com/2017/day/2."""
 import fileinput
 from itertools import permutations
 

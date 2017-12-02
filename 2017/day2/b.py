@@ -3,12 +3,11 @@ import fileinput
 from itertools import permutations
 
 
-def quotient(line):
+def even_quotient(line):
     """Returns the quotient of the first pair of numbers that divide evenly."""
-    return next(x // y for x, y in permutations(line, 2) if x / y == x // y)
+    return next(x // y for x, y in permutations(line, 2) if (x / y).is_integer())
 
 
-lines = ([int(x) for x in line.split()] for line in fileinput.input())
-results = (quotient(line) for line in lines)
+rows = ([int(x) for x in line.split()] for line in fileinput.input())
 
-print(sum(results))
+print(sum(even_quotient(row) for row in rows))

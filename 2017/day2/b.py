@@ -5,7 +5,7 @@ from itertools import permutations
 
 def even_quotient(line):
     """Returns the quotient of the first pair of numbers that divide evenly."""
-    return next(x // y for x, y in permutations(line, 2) if (x / y).is_integer())
+    return next(x // y for x, y in permutations(line, 2) if x % y == 0)
 
 
 rows = ([int(x) for x in line.split()] for line in fileinput.input())

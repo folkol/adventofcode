@@ -20,7 +20,7 @@ def spiral_to_cartesian():
         20   7   8   9  10
         21  22  23---> ...
     """
-    Direction = namedtuple("Directin", ['x', 'y'])
+    Direction = namedtuple("Direction", ['x', 'y'])
     right = Direction(1, 0)
     up = Direction(0, 1)
     left = Direction(-1, 0)
@@ -42,11 +42,6 @@ def spiral_to_cartesian():
             y += direction.y
         direction = next_direction[direction]
         side += 0.5
-
-
-# spirals = spiral_to_cartesian()
-# for i in range(20):
-#     print(i + 1, next(spirals))
 
 
 N = 312051 - 1  # 1-indexed

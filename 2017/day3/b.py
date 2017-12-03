@@ -19,7 +19,7 @@ def spiral_to_cartesian():
         20   7   8   9  10
         21  22  23---> ...
     """
-    Direction = namedtuple("Directin", ['x', 'y'])
+    Direction = namedtuple("Direction", ['x', 'y'])
     right = Direction(1, 0)
     up = Direction(0, 1)
     left = Direction(-1, 0)

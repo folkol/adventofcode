@@ -1,6 +1,18 @@
 """Calculates memory latency á la https://adventofcode.com/2017/day/3."""
 from collections import namedtuple
 
+Direction = namedtuple("Direction", ['x', 'y'])
+RIGHT = Direction(1, 0)
+UP = Direction(0, 1)
+LEFT = Direction(-1, 0)
+DOWN = Direction(0, -1)
+next_direction = {
+    RIGHT: UP,
+    UP: LEFT,
+    LEFT: DOWN,
+    DOWN: RIGHT
+}
+
 
 def manhattan_distance(x1, y1, x2, y2):
     return abs(x1 - x2) + abs(y1 - y2)
@@ -19,19 +31,7 @@ def spiral_to_cartesian():
         20   7   8   9  10
         21  22  23---> ...
     """
-    Direction = namedtuple("Direction", ['x', 'y'])
-    right = Direction(1, 0)
-    up = Direction(0, 1)
-    left = Direction(-1, 0)
-    down = Direction(0, -1)
-    next_direction = {
-        right: up,
-        up: left,
-        left: down,
-        down: right
-    }
-
-    direction = right
+    direction = RIGHT
     x, y = 0, 0
     side = 1.0
     while True:
@@ -40,7 +40,7 @@ def spiral_to_cartesian():
             x += direction.x
             y += direction.y
         direction = next_direction[direction]
-        side += 0.5
+        side += 0.5  # we want to increase the side every other iteration
 
 
 def neighbour_sum(x, y):

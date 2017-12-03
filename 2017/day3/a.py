@@ -41,7 +41,7 @@ def spiral_to_cartesian():
             x += direction.x
             y += direction.y
         direction = next_direction[direction]
-        side += 0.5
+        side += 0.5  # we want to increase the side every other iteration
 
 
 N = 312051 - 1  # 1-indexed

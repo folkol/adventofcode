@@ -8,5 +8,5 @@ def valid_passphrase(passphrase):
     return all(cardinality == 1 for cardinality in cardinalities.values())
 
 
-phrases = (Counter(line.split()) for line in fileinput.input())
+phrases = (line.split() for line in fileinput.input())
 print(sum(1 for phrase in phrases if valid_passphrase(phrase)))

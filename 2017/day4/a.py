@@ -9,6 +9,4 @@ def valid_passphrase(passphrase):
 
 
 phrases = (Counter(line.split()) for line in fileinput.input())
-valid_passphrases = (phrase for phrase in phrases if valid_passphrase(phrase))
-
-print(sum(1 for _ in valid_passphrases))
+print(sum(1 for phrase in phrases if valid_passphrase(phrase)))

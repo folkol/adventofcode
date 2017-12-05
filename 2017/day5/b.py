@@ -7,7 +7,10 @@ pc = 0
 try:
     for i in count():
         delta = maze[pc]
-        maze[pc] += 1
+        if delta > 2:
+            maze[pc] -= 1
+        else:
+            maze[pc] += 1
         pc += delta
 except IndexError:
     pass

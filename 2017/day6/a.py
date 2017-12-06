@@ -4,16 +4,23 @@ banks = [int(x) for x in '11	11	13	7	0	15	5	5	4	4	1	1	7	1	15	11'.split()]
 
 seen = set()
 
+
+def realloc():
+    """Reallocates blocks according to https://adventofcode.com/2017/day/6."""
+    i_max = banks.index(max(banks))
+    num_blocks = banks[i_max]
+    banks[i_max] = 0
+    for _ in range(num_blocks):
+        i_max = (i_max + 1) % len(banks)
+        banks[i_max] += 1
+
+
 for c in count():
     # print(seen)
-    if tuple(banks) in seen:
+    snapshot = tuple(banks)
+    if snapshot in seen:
         break
-    seen.add(tuple(banks))
-    i = banks.index(max(banks))
-    num_blocks = banks[i]
-    banks[i] = 0
-    for _ in range(num_blocks):
-        i = (i + 1) % len(banks)
-        banks[i] += 1
+    seen.add(snapshot)
+    realloc()
 
 print(c)

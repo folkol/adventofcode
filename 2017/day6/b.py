@@ -15,11 +15,16 @@ def realloc():
         banks[i_max] += 1
 
 
-for c in count():
+while True:
     # print(seen)
     snapshot = tuple(banks)
     if snapshot in seen:
-        print(c)
         break
     seen.add(snapshot)
     realloc()
+
+for c in count(start=1):
+    realloc()
+    if snapshot == tuple(banks):
+        print(c)
+        break

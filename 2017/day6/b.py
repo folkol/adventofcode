@@ -1,6 +1,7 @@
 from itertools import count
+from sys import stdin
 
-banks = [int(x) for x in '11	11	13	7	0	15	5	5	4	4	1	1	7	1	15	11'.split()]
+banks = [int(x) for x in stdin.read().split()]
 
 
 def realloc():

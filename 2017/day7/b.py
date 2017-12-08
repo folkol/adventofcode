@@ -9,6 +9,7 @@
 """
 import re
 from collections import defaultdict, Counter
+from sys import stdin
 
 
 class Node(object):
@@ -47,7 +48,7 @@ def deviant(children):
 
 
 # programs = read_graph(stdin)
-family = read_graph(open('programs.dat'))
+family = read_graph(stdin)
 for program in family.values():
     if not program.parent:
         # In solitude, balance!
@@ -58,5 +59,4 @@ for program in family.values():
     if program is deviant(siblings) and None is deviant(program.children):
         counter = Counter(child.total_weight() for child in siblings)
         (ideal_weight, _), *_ = counter.most_common()
-        assert ideal_weight == 1486, 'You broke it!'
         print(ideal_weight)

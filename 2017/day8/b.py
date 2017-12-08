@@ -14,12 +14,12 @@ relational_operators = {
 highest_value = float('-inf')
 registers = defaultdict(int)
 for instruction in open('instructions.dat'):
-    reg1, op, val, _, reg2, rel, immediate = re.findall('\S+', instruction)
-    if relational_operators[rel](registers[reg2], int(immediate)):
+    reg, op, val, _, cond_reg, rel, cond_val = re.findall('\S+', instruction)
+    if relational_operators[rel](registers[cond_reg], int(cond_val)):
         if op == 'inc':
-            registers[reg1] += int(val)
+            registers[reg] += int(val)
         else:
-            registers[reg1] -= int(val)
-    highest_value = max(registers[reg1], highest_value)
+            registers[reg] -= int(val)
+    highest_value = max(registers[reg], highest_value)
 
 print(highest_value)

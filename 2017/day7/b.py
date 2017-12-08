@@ -29,11 +29,11 @@ def read_graph(f):
         node = graph[name]
         node.name = name
         node.weight = int(weight)
-        for child in children:
-            child_node = graph[child]
-            child_node.parent = node
-            child_node.name = child
-            node.children.append(child_node)
+        for c in children:
+            child = graph[c]
+            child.parent = node
+            child.name = c
+            node.children.append(child)
     return dict(graph)
 
 
@@ -47,8 +47,8 @@ def deviant(children):
 
 
 # programs = read_graph(stdin)
-programs = read_graph(open('programs.dat'))
-for program in programs.values():
+family = read_graph(open('programs.dat'))
+for program in family.values():
     if not program.parent:
         # In solitude, balance!
         continue

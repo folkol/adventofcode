@@ -58,8 +58,7 @@ for program in programs.values():
     # A deviant node with no deviant children is the black sheep.
     siblings = program.parent.children
     if program is deviant(siblings) and None is deviant(program.children):
-        deviant_node = program
-        counter = Counter(child.total_weight() for child in deviant_node.parent.children)
+        counter = Counter(child.total_weight() for child in siblings)
         (ideal_weight, _), *_ = counter.most_common()
         assert ideal_weight == 1486, 'You broke it!'
         print(ideal_weight)

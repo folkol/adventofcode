@@ -21,29 +21,29 @@ for line in stdin:
     node['children'].extend(children)
 
 
-def recursive_weight(node):
+def rec_weight(node):
     """Recursively calculate the weight for all programs in this node."""
     if not node:
         return 0
 
-    return node['weight'] + sum(recursive_weight(nodes[child]) for child in node['children'])
+    return node['weight'] + sum(rec_weight(nodes[child]) for child in node['children'])
 
 
 unbalanced_nodes = []
 for name, node in nodes.items():
     children = node['children']
     if children:
-        counter = Counter(recursive_weight(nodes[child]) for child in children)
-        if len(counter) > 1:
-            (mode, count), *_ = counter.most_common()
-            unbalanced_child = next(child for child in children if recursive_weight(nodes[child]) != mode)
-            unbalanced_nodes.append(unbalanced_child)
+        counter = Counter(rec_weight(nodes[child]) for child in children)
+        if len(counter) > 1:  # The recursive weigts of these children differ
+            (mode, _), *_ = counter.most_common()
+            black_sheep = next(child for child in children if rec_weight(nodes[child]) != mode)
+            unbalanced_nodes.append(black_sheep)
 
 for unbalanced_node in unbalanced_nodes:
-    if len(set(recursive_weight(nodes[child]) for child in nodes[unbalanced_node]['children'])) == 1:
-        """The unbalanced node with all balanced children is the culprit."""
+    if len(set(rec_weight(nodes[child]) for child in nodes[unbalanced_node]['children'])) == 1:
+        """The unbalanced node with all children in balance is the culprit."""
         parent = next(node for node in nodes.values() if unbalanced_node in node['children'])
-        counter = Counter(recursive_weight(nodes[child]) for child in parent['children'])
+        counter = Counter(rec_weight(nodes[child]) for child in parent['children'])
         (mode, _), (wrong, _), *_ = counter.most_common()
         diff = wrong - mode
         target_weight = nodes[unbalanced_node]['weight'] - diff

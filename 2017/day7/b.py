@@ -9,7 +9,6 @@
 """
 import re
 from collections import defaultdict, Counter
-from sys import stdin
 
 
 class Node(object):
@@ -20,7 +19,6 @@ class Node(object):
         self.children = []
 
     def total_weight(self):
-        """Total weight of this node and its children, recursively."""
         return self.weight + sum(child.total_weight() for child in self.children)
 
 
@@ -40,7 +38,7 @@ def read_graph(f):
 
 
 def deviant(children):
-    """Returns the deviant child, of any."""
+    """Returns the deviant – as in weigh – child, if any."""
     weights = Counter(child.total_weight() for child in children)
     if len(weights) == 1:
         return None

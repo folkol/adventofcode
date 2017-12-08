@@ -45,12 +45,11 @@ def deviant(children):
     if len(weights) == 1:
         return None
     (mode, _), (outlier, _) = weights.most_common()
-    for child in children:
-        if child.total_weight() == outlier:
-            return child
+    return next(child for child in children if child.total_weight() == outlier)
 
 
-programs = read_graph(stdin)
+# programs = read_graph(stdin)
+programs = read_graph(open('programs.dat'))
 for program in programs.values():
     if not program.parent:
         # In solitude, balance!
@@ -58,8 +57,9 @@ for program in programs.values():
 
     # A deviant node with no deviant children is the black sheep.
     siblings = program.parent.children
-    if program is deviant(siblings) and not deviant(program.children):
+    if program is deviant(siblings) and None is deviant(program.children):
         deviant_node = program
         counter = Counter(child.total_weight() for child in deviant_node.parent.children)
         (ideal_weight, _), *_ = counter.most_common()
+        assert ideal_weight == 1486, 'You broke it!'
         print(ideal_weight)

@@ -10,42 +10,46 @@
 """
 import re
 from collections import defaultdict, Counter
-from sys import stdin
 
-nodes = defaultdict(lambda: dict(name='', weight=0, children=[]))
-for line in stdin:
+
+class Node(object):
+    def total_weight(self):
+        """Recursively calculate the weight for all programs in this node."""
+        return self.weight + sum(child.total_weight() for child in self.children)
+
+    def __init__(self):
+        self.name = 'unknown'
+        self.weight = 0
+        self.parent = None
+        self.children = []
+
+
+nodes = defaultdict(Node)
+# for line in stdin:
+for line in open('programs.dat'):
     name, weight, *children = re.findall('\w+', line)
     node = nodes[name]
-    node['name'] = name
-    node['weight'] = int(weight)
-    node['children'].extend(children)
+    node.name = name
+    node.weight = int(weight)
+    for child in children:
+        child_node = nodes[child]
+        child_node.parent = node
+        child_node.name = child
+        node.children.append(nodes[child])
 
 
-def rec_weight(node):
-    """Recursively calculate the weight for all programs in this node."""
-    if not node:
-        return 0
+def unbalanced(children):
+    counter = Counter(child.total_weight() for child in children)
+    if len(counter) == 1:
+        return None
+    (mode, _), (wrong, _) = counter.most_common()
+    for child in children:
+        if child.total_weight() == wrong:
+            return child
 
-    return node['weight'] + sum(rec_weight(nodes[child]) for child in node['children'])
 
-
-unbalanced_nodes = []
 for name, node in nodes.items():
-    children = node['children']
-    if children:
-        counter = Counter(rec_weight(nodes[child]) for child in children)
-        if len(counter) > 1:  # The recursive weigts of these children differ
-            (mode, _), *_ = counter.most_common()
-            black_sheep = next(child for child in children if rec_weight(nodes[child]) != mode)
-            unbalanced_nodes.append(black_sheep)
-
-for unbalanced_node in unbalanced_nodes:
-    if len(set(rec_weight(nodes[child]) for child in nodes[unbalanced_node]['children'])) == 1:
-        """The unbalanced node with all children in balance is the culprit."""
-        parent = next(node for node in nodes.values() if unbalanced_node in node['children'])
-        counter = Counter(rec_weight(nodes[child]) for child in parent['children'])
-        (mode, _), (wrong, _), *_ = counter.most_common()
-        diff = wrong - mode
-        target_weight = nodes[unbalanced_node]['weight'] - diff
-        print(target_weight)
-        break
+    if node.parent and node == unbalanced(node.parent.children) and not unbalanced(node.children):
+        counter = Counter(child.total_weight() for child in node.parent.children)
+        (mode, _), *_ = counter.most_common()
+        print(mode)

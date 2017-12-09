@@ -8,12 +8,12 @@ for char in chars:
         next(chars)
         continue
 
-    if not inside_garbage and char == '<':
-        inside_garbage = True
-    elif inside_garbage:
+    if inside_garbage:
         if char == '>':
             inside_garbage = False
         else:
             garbage_count += 1
+    elif char == '<':
+        inside_garbage = True
 
 print(garbage_count)

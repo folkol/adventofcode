@@ -1,25 +1,21 @@
-def as_chars(f):
-    while True:
-        c = f.read(1)
-        if len(c) == 0:
-            break
-        yield c
-
+from sys import stdin
 
 depth = 0
 score = 0
 inside_garbage = False
-chars = as_chars(open('stream.dat'))
+
+chars = iter(stdin.read())  # TODO: Idiomatic way of streaming these?
 for char in chars:
     if char == '!':
+        # Skip skip skip! (https://www.youtube.com/watch?v=c8jbSoCbnns)
         next(chars)
         continue
 
-    if char == '<':
-        inside_garbage = True
-    elif inside_garbage:
+    if inside_garbage:
         if char == '>':
             inside_garbage = False
+    elif char == '<':
+        inside_garbage = True
     elif char == '{':
         depth += 1
     elif char == '}':

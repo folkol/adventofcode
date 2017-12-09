@@ -2,6 +2,7 @@ from sys import stdin
 
 inside_garbage = False
 garbage_count = 0
+
 chars = iter(stdin.read())
 for char in chars:
     if char == '!':

@@ -1,9 +1,11 @@
+from sys import stdin
+
 inside_garbage = False
 garbage_count = 0
-data = iter(open('stream.dat').read())
-for char in data:
+chars = iter(stdin.read())
+for char in chars:
     if char == '!':
-        next(data)
+        next(chars)
         continue
 
     if not inside_garbage and char == '<':

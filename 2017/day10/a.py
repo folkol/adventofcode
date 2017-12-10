@@ -1,12 +1,17 @@
-xs = list(range(256))
+def rotate(lst, i):
+    """Rotates the list lst i steps to the left."""
+    lst[:] = lst[i:] + lst[:i]
+
+
 lengths = (int(x) for x in '106,16,254,226,55,2,1,166,177,247,93,0,255,228,60,36'.split(","))
 
+xs = list(range(256))
 pos = 0
 skip = 0
 for length in lengths:
-    xs = xs[pos:] + xs[:pos]  # Shift left
+    rotate(xs, pos)
     xs[:length] = reversed(xs[:length])
-    xs = xs[-pos:] + xs[:-pos]  # Shift right
+    rotate(xs, -pos)
     pos = (pos + length + skip) % len(xs)
     skip += 1
 

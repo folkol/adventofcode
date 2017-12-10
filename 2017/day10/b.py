@@ -20,12 +20,12 @@ for r in range(64):
         rotate(xs, -pos)
         pos = (pos + length + skip) % len(xs)
         skip += 1
-        dense_hash = [reduce(xor, xs[x * 16:x * 16 + 16]) for x in range(16)]
-        print((16 * '{:02x}').format(*dense_hash))
 
-chunk1 = xs[0:16]
-print(chunk1[0] ^ chunk1[1] ^ chunk1[2] ^ chunk1[3] ^ chunk1[4] ^ chunk1[5] ^ chunk1[6] ^ chunk1[7] ^ chunk1[8] ^ chunk1[9] ^ chunk1[10] ^ chunk1[11] ^ chunk1[12] ^ chunk1[13] ^ chunk1[14] ^ chunk1[15])
-print(reduce(xor, chunk1))
 
-dense_hash = [reduce(xor, xs[x * 16:x * 16 + 16]) for x in range(16)]
-print((16 * '{:02x}').format(*dense_hash))
+def chunk(lst, i, size=16):
+    """Extracts chunk #i from the given list."""
+    return lst[i * size:i * size + size]
+
+
+dense_hash = (reduce(xor, chunk(xs, x)) for x in range(16))
+print(''.join(f'{x:02x}' for x in dense_hash))

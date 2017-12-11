@@ -10,8 +10,8 @@ DELTAS = {
 }
 
 
-def distance():
-    return max(abs(x), abs(y), abs(z))
+def distance(*xs):
+    return max(*map(abs, xs))
 
 
 x, y, z = 0, 0, 0
@@ -19,4 +19,4 @@ for step in steps:
     dx, dy, dz = DELTAS[step]
     x, y, z = x + dx, y + dy, z + dz
 
-print(distance())
+print(distance(x, y, z))

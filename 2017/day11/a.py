@@ -1,28 +1,22 @@
 steps = open('path.dat').read().split(",")
 
-x = 0
-y = 0
-z = 0
-for step in steps:
-    if step == 'nw':
-        x -= 1
-        y += 1
-    elif step == 'n':
-        y += 1
-        z -= 1
-    elif step == 'ne':
-        z -= 1
-        x += 1
-    elif step == 'se':
-        x += 1
-        y -= 1
-    elif step == 's':
-        y -= 1
-        z += 1
-    elif step == 'sw':
-        x -= 1
-        z += 1
-    else:
-        raise 'Unknown step' + step
+DELTAS = {
+    'nw': (-1, 1, 0),
+    'n': (0, 1, -1),
+    'ne': (1, 0, -1),
+    'se': (1, -1, 0),
+    's': (0, -1, 1),
+    'sw': (-1, 0, 1)
+}
 
-print(max(abs(x), abs(y), abs(z)))
+
+def distance():
+    return max(abs(x), abs(y), abs(z))
+
+
+x, y, z = 0, 0, 0
+for step in steps:
+    dx, dy, dz = DELTAS[step]
+    x, y, z = x + dx, y + dy, z + dz
+
+print(distance())

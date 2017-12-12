@@ -13,7 +13,7 @@ def travel(n, nodes, seen):
             travel(node, nodes, seen)
 
 
-# Builds up an adjacency list by reading connections.dat
+# Build adjacency list
 nodes = defaultdict(list)
 for line in open('connections.dat'):
     node, *neighbours = re.findall('\d+', line)

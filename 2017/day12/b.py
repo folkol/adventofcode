@@ -26,7 +26,8 @@ num_groups = 0
 
 seen = set()
 while len(set(edges) - set(seen)):
-    travel(next(iter(set(edges) - set(seen))), edges, seen)
+    unseen = next(iter(set(edges) - set(seen)))
+    travel(unseen, edges, seen)
     num_groups += 1
 
 print(num_groups)

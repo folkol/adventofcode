@@ -1,9 +1,12 @@
 from functools import reduce
+from itertools import product
 from operator import xor
 
+PADDING = [17, 31, 73, 47, 23]
 SEED = 'amgozmfv'
 NUM_ROWS = 128
 NUM_COLS = 128
+UP, DOWN, LEFT, RIGHT = (-1, 0), (1, 0), (0, -1), (0, +1)
 
 
 def knot_hash(s):
@@ -11,11 +14,9 @@ def knot_hash(s):
         """Rotates the list lst i steps to the left."""
         lst[:] = lst[i:] + lst[:i]
 
-    lengths = [ord(x) for x in s] + [17, 31, 73, 47, 23]
-
+    lengths = list(map(ord, s)) + PADDING
     xs = list(range(256))
-    pos = 0
-    skip = 0
+    pos, skip = 0, 0
     for r in range(64):
         for length in lengths:
             rotate(xs, pos)
@@ -29,13 +30,12 @@ def knot_hash(s):
         return lst[i * size:i * size + size]
 
     dense_hash = (reduce(xor, chunk(xs, x)) for x in range(16))
-    return ''.join(f'{x:08b}' for x in dense_hash)[:NUM_COLS]
+    return ''.join(f'{x:08b}' for x in dense_hash)
 
 
 def groups():
     hashes = (knot_hash(f'{SEED}-{i}') for i in range(NUM_ROWS))
-    used = {row: [int(n) for n in list(hash)] for row, hash in enumerate(hashes)}
-
+    used = {row: [int(n) for n in list(h)] for row, h in enumerate(hashes)}
     seen = []
 
     def extract_group(row, col):
@@ -43,32 +43,22 @@ def groups():
 
         def visit(i, j):
             coordinate = i, j
-            if not (0 <= i < NUM_ROWS):
-                return
-            if not (0 <= j < NUM_COLS):
-                return
             if coordinate in seen:
                 return
-            seen.append(coordinate)
 
-            if used[i][j]:
+            if 0 <= i < NUM_ROWS and 0 <= j < NUM_COLS and used[i][j]:
+                seen.append(coordinate)
+                for di, dj in UP, DOWN, LEFT, RIGHT:
+                    visit(i + di, j + dj)
                 group.append(coordinate)
-
-                visit(i - 1, j)
-                visit(i + 1, j)
-                visit(i, j - 1)
-                visit(i, j + 1)
+                used[i][j] = 0
 
         visit(row, col)
-        for i, j in group:
-            used[i][j] = 0
-
         return group
 
-    for row in range(NUM_ROWS):
-        for col in range(NUM_COLS):
-            if used[row][col]:
-                yield extract_group(row, col)
+    for row, col in product(range(NUM_ROWS), range(NUM_COLS)):
+        if used[row][col]:
+            yield extract_group(row, col)
 
 
 print(sum(1 for _ in groups()))

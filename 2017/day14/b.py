@@ -3,6 +3,13 @@ KEY = 'amgozmfv'
 from functools import reduce
 from operator import xor
 
+SEED = 'amgozmfv'
+# SEED = 'flqrgnkx'
+# NUM_ROWS = 15
+NUM_ROWS = 128
+# NUM_COLS = 15
+NUM_COLS = 128
+
 
 def knot_hash(s):
     def rotate(lst, i):
@@ -27,8 +34,73 @@ def knot_hash(s):
         return lst[i * size:i * size + size]
 
     dense_hash = (reduce(xor, chunk(xs, x)) for x in range(16))
-    return ''.join(f'{x:016b}' for x in dense_hash)
+    return ''.join(f'{x:08b}' for x in dense_hash)[:NUM_COLS]
 
 
-squares = {i: knot_hash(f'amgozmfv-{i}') for i in range(128)}
-print(squares)
+def groups():
+    hashes = (knot_hash(f'{SEED}-{i}') for i in range(NUM_ROWS))
+    used = {row: [int(n) for n in list(hash)] for row, hash in enumerate(hashes)}
+
+    seen = []
+
+    def extract_group(row, col):
+        group = []
+
+        def visit(i, j):
+            # print(f'Visiting {i}, {j}')
+            coordinate = i, j
+            if not (0 <= i < NUM_ROWS):
+                return
+            if not (0 <= j < NUM_COLS):
+                return
+            if coordinate in seen:
+                return
+            seen.append(coordinate)
+
+            if used[i][j]:
+                # print(f'  + {i}, {j}')
+                group.append(coordinate)
+
+                visit(i - 1, j)
+                visit(i + 1, j)
+                visit(i, j - 1)
+                visit(i, j + 1)
+
+        visit(row, col)
+
+        # print('------- Identified group ----------')
+        # for i, j in used.items():
+        #     for i2, j2 in enumerate(j):
+        #         if (i, i2) in group:
+        #             print('X', end='')
+        #         elif used[i][i2]:
+        #             print('o', end='')
+        #         else:
+        #             print('.', end='')
+        #     print()
+        # print()
+
+        for i, j in group:
+            used[i][j] = 0
+
+        return group
+
+    for row in range(NUM_ROWS):
+        for col in range(NUM_COLS):
+            if used[row][col]:
+                # print('-----------------------------------')
+                # for i, j in used.items():
+                #     for i2, j2 in enumerate(j):
+                #         print('X' if j2 else '.', end='')
+                #     print()
+                # print()
+                yield extract_group(row, col)
+
+
+n = 0
+for group in groups():
+    print(group)
+    n += 1
+
+print(n)
+# print(sum(knot_hash(f'amgozmfv-{i}').count('1') for i in range(NUM_ROWS)))

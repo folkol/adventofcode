@@ -10,6 +10,7 @@ UP, DOWN, LEFT, RIGHT = (-1, 0), (1, 0), (0, -1), (0, +1)
 
 
 def knot_hash(s):
+    """Knot hash algorithm, stolen from day 10."""
     def rotate(lst, i):
         """Rotates the list lst i steps to the left."""
         lst[:] = lst[i:] + lst[:i]
@@ -34,14 +35,17 @@ def knot_hash(s):
 
 
 def groups():
+    """Produces all groups from the grid."""
     hashes = (knot_hash(f'{SEED}-{i}') for i in range(NUM_ROWS))
     used = {row: [int(n) for n in list(h)] for row, h in enumerate(hashes)}
     seen = []
 
     def extract_group(row, col):
+        """Flood fills the group at row, col. Marks these squares as 0 in the process."""
         group = []
 
         def visit(i, j):
+            """Recursively visits all adjacent, and used, squares."""
             coordinate = i, j
             if coordinate in seen:
                 return

@@ -1,10 +1,10 @@
 from itertools import islice
 
 N = 40_000_000
-MASK = (1 << 17) - 1  # 16 LSBs
+MASK = (1 << 16) - 1  # 16 LSBs
 
 
-def generator(factor, modulus=2147483647, seed=0):
+def generator(factor, seed, modulus=2147483647):
     while True:
         seed = seed * factor % modulus
         yield seed
@@ -12,9 +12,6 @@ def generator(factor, modulus=2147483647, seed=0):
 
 a = generator(factor=16807, seed=634)
 b = generator(factor=48271, seed=301)
-
-a = generator(factor=16807, seed=65)
-b = generator(factor=48271, seed=8921)
 
 pairs = islice(zip(a, b), N)
 

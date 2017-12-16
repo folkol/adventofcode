@@ -2,12 +2,8 @@ from itertools import count
 
 N = 1_000_000_000
 lineup = list('abcdefghijklmnop')
-# lineup = list('abcde')
 positions = lineup[:]
 moves = open('moves.dat').read().split(',')
-
-
-# moves = 's1,x3/4,pe/b'.split(',')
 
 
 def spin(xs, i):
@@ -31,29 +27,20 @@ dispatch = {
     'p': partner
 }
 
-for cycle_len in count():
-    move = moves[(cycle_len % len(moves))]
 
-    before = ''.join(list(positions))
+def dance():
+    for move in moves:
+        op = move[0]
+        params = move[1:].split('/')
+        dispatch[op](positions, *params)
 
-    op = move[0]
-    params = move[1:].split('/')
-    dispatch[op](positions, *params)
 
-    print(f"{move:8} {before:18} -> {''.join(positions)}")
-    if positions == list(lineup):
+for cycle_len in count(start=1):
+    dance()
+    if positions == lineup:
         break
 
-# TODO: Cycles in number of dances, not in number of moves...
-n_cycle_len = N % cycle_len
-print(cycle_len, n_cycle_len)
-for n in range(n_cycle_len):
-    move = moves[n % len(moves)]
+for _ in range(N % cycle_len):
+    dance()
 
-    op = move[0]
-    params = move[1:].split('/')
-    dispatch[op](positions, *params)
-
-print(''.join(positions))  # fgjkobpdheinlmac
-
-
+print(''.join(positions))

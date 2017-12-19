@@ -13,80 +13,65 @@ class Thread(object):
         self.blocked = False
         self.num_sent = 0
 
-    def get(self, reg):
+    def get(self, value):
         try:
-            val = int(reg)
+            return int(value)
         except ValueError:
-            val = self.registers[reg]
-        return val
+            return self.registers[value]
 
+    def op_set(self, reg, value):
+        self.registers[reg] = self.get(value)
 
-def op_set(thread, reg, value):
-    thread.registers[reg] = thread.get(value)
+    def op_add(self, reg, value):
+        self.registers[reg] += self.get(value)
 
+    def op_mul(self, reg, value):
+        self.registers[reg] *= self.get(value)
 
-def op_add(thread, reg, value):
-    thread.registers[reg] += thread.get(value)
+    def op_mod(self, reg, value):
+        self.registers[reg] %= self.get(value)
 
-
-def op_mul(thread, reg, value):
-    val = thread.get(value)
-    thread.registers[reg] *= val
-
-
-def op_mod(thread, reg, value):
-    thread.registers[reg] %= thread.get(value)
-
-
-def op_snd(thread, reg, target):
-    target.messages.append(thread.registers[reg])
-    thread.num_sent += 1
+    def op_snd(self, reg, target):
+        target.messages.append(self.registers[reg])
+        self.num_sent += 1
 
 
 ops = {
-    'set': op_set,
-    'add': op_add,
-    'mul': op_mul,
-    'mod': op_mod,
-    'snd': op_snd
+    'set': Thread.op_set,
+    'add': Thread.op_add,
+    'mul': Thread.op_mul,
+    'mod': Thread.op_mod,
+    'snd': Thread.op_snd
 }
 
-thread0 = Thread(0)
-thread1 = Thread(1)
-
-threads = [thread0, thread1]
-while any(not thread.blocked for thread in threads):
+threads = [Thread(0), Thread(1)]
+while not all(t.blocked for t in threads):
     for thread in threads:
-        if thread.pc < 0 or thread.pc >= len(program):
-            print(thread.pid, 'blocked')
+        if not 0 <= thread.pc < len(program):
             thread.blocked = True
             continue
 
-        thread.blocked = False
-        op, reg, *args = program[thread.pc]
+        op, *args = program[thread.pc]
 
         if op == 'jgz':
-            x = thread.get(reg)
-            if x > 0:
-                try:
-                    thread.pc += int(args[0])
-                    continue
-                except ValueError:
-                    thread.pc += thread.registers[args[0]]
-                    continue
+            if thread.get(args[0]) > 0:
+                thread.pc += thread.get(args[1])
+                continue
         elif op == 'snd':
             other = threads[thread.pid - 1]
-            op_snd(thread, reg, other)
+            thread.op_snd(args[0], other)
         elif op == 'rcv':
             if not thread.messages:
                 thread.blocked = True
                 continue
 
-            thread.registers[reg] = thread.messages.popleft()
+            thread.blocked = False
+            thread.registers[args[0]] = thread.messages.popleft()
         else:
-            ops[op](thread, reg, *args)
+            ops[op](thread, *args)
 
         thread.pc += 1
 
-assert thread1.num_sent == 8001, thread1
-print(thread1.num_sent)
+t = threads[1]
+assert t.num_sent == 8001, t
+print(t.num_sent)

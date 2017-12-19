@@ -1,14 +1,17 @@
 from collections import defaultdict, deque
 
-program = [x.split() for x in """snd 1
-snd 2
-snd p
-rcv a
-rcv b
-rcv c
-rcv d""".split('\n')]
 program = [x.split() for x in open('program.dat')]
-LATEST_SOUND = 'LATEST_SOUND'
+
+
+class Thread(object):
+    def __init__(self, pid):
+        self.pc = 0
+        self.pid = pid
+        self.messages = deque()
+        self.registers = defaultdict(int)
+        self.registers['p'] = self.pid
+        self.blocked = False
+        self.num_sent = 0
 
 
 def op_set(registers, reg, value):
@@ -27,9 +30,10 @@ def op_add(registers, reg, value):
 
 def op_mul(registers, reg, value):
     try:
-        registers[reg] *= int(value)
+        val = int(value)
     except ValueError:
-        registers[reg] *= registers[value]
+        val = registers[value]
+    registers[reg] *= val
 
 
 def op_mod(registers, reg, value):
@@ -40,8 +44,8 @@ def op_mod(registers, reg, value):
 
 
 def op_snd(thread, reg, target):
-    target['messages'].append(thread['registers'][reg])
-    thread['num_sent'] += 1
+    target.messages.append(thread.registers[reg])
+    thread.num_sent += 1
 
 
 ops = {
@@ -52,71 +56,45 @@ ops = {
     'snd': op_snd
 }
 
-thread0 = {
-    'pc': 0,
-    'pid': 0,
-    'messages': deque(),
-    'registers': defaultdict(int),
-    'blocked': False,
-    'num_sent': 0
-}
-thread0['registers']['p'] = 0
-
-thread1 = {
-    'pc': 0,
-    'pid': 1,
-    'registers': defaultdict(int),
-    'messages': deque(),
-    'blocked': False,
-    'num_sent': 0
-}
-thread1['registers']['p'] = 1
+thread0 = Thread(0)
+thread1 = Thread(1)
 
 threads = [thread0, thread1]
-while any(not thread['blocked'] for thread in threads):
-    assert thread0['registers'] is not thread1['registers']
+while any(not thread.blocked for thread in threads):
     for thread in threads:
-        assert 0 <= thread['pc']
-        assert thread['pc'] < len(program)
-        for register, value in thread['registers'].items():
-            assert isinstance(value, int)
-
-        if thread['pc'] < 0 or thread['pc'] >= len(program):
-            print(thread['pid'], 'blocked')
-            thread['blocked'] = True
+        if thread.pc < 0 or thread.pc >= len(program):
+            print(thread.pid, 'blocked')
+            thread.blocked = True
             continue
 
-        thread['blocked'] = False
-        op, reg, *args = program[thread['pc']]
+        thread.blocked = False
+        op, reg, *args = program[thread.pc]
 
         if op == 'jgz':
             try:
                 x = int(reg)
             except ValueError:
-                x = thread['registers'][reg]
+                x = thread.registers[reg]
             if x > 0:
                 try:
-                    thread['pc'] += int(args[0])
+                    thread.pc += int(args[0])
                     continue
                 except ValueError:
-                    thread['pc'] += thread['registers'][args[0]]
+                    thread.pc += thread.registers[args[0]]
                     continue
         elif op == 'snd':
-            # print(thread['pid'])
-            other = threads[thread['pid'] - 1]
-            assert other is not thread
+            other = threads[thread.pid - 1]
             op_snd(thread, reg, other)
         elif op == 'rcv':
-            if not thread['messages']:
-                thread['blocked'] = True
+            if not thread.messages:
+                thread.blocked = True
                 continue
 
-            thread['registers'][reg] = thread['messages'].popleft()
+            thread.registers[reg] = thread.messages.popleft()
         else:
-            ops[op](thread['registers'], reg, *args)
+            ops[op](thread.registers, reg, *args)
 
-        thread['pc'] += 1
+        thread.pc += 1
 
-print(thread0)
-print(thread1)
-print(thread1['num_sent'])
+assert thread1.num_sent == 8001, thread1
+print(thread1.num_sent)

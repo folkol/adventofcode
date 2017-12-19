@@ -13,12 +13,6 @@ class Thread(object):
         self.blocked = False
         self.num_sent = 0
 
-    def get(self, value):
-        try:
-            return int(value)
-        except ValueError:
-            return self.registers[value]
-
     def op_set(self, reg, value):
         self.registers[reg] = self.get(value)
 
@@ -34,6 +28,12 @@ class Thread(object):
     def op_snd(self, reg, target):
         target.messages.append(self.registers[reg])
         self.num_sent += 1
+
+    def get(self, value):
+        try:
+            return int(value)
+        except ValueError:
+            return self.registers[value]
 
 
 ops = {
@@ -72,6 +72,4 @@ while not all(t.blocked for t in threads):
 
         thread.pc += 1
 
-t = threads[1]
-assert t.num_sent == 8001, t
-print(t.num_sent)
+print(threads[1].num_sent)

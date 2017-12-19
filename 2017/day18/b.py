@@ -13,34 +13,29 @@ class Thread(object):
         self.blocked = False
         self.num_sent = 0
 
-
-def op_set(registers, reg, value):
-    try:
-        registers[reg] = int(value)
-    except ValueError:
-        registers[reg] = registers[value]
-
-
-def op_add(registers, reg, value):
-    try:
-        registers[reg] += int(value)
-    except ValueError:
-        registers[reg] += registers[value]
+    def get(self, reg):
+        try:
+            val = int(reg)
+        except ValueError:
+            val = self.registers[reg]
+        return val
 
 
-def op_mul(registers, reg, value):
-    try:
-        val = int(value)
-    except ValueError:
-        val = registers[value]
-    registers[reg] *= val
+def op_set(thread, reg, value):
+    thread.registers[reg] = thread.get(value)
 
 
-def op_mod(registers, reg, value):
-    try:
-        registers[reg] %= int(value)
-    except ValueError:
-        registers[reg] %= registers[value]
+def op_add(thread, reg, value):
+    thread.registers[reg] += thread.get(value)
+
+
+def op_mul(thread, reg, value):
+    val = thread.get(value)
+    thread.registers[reg] *= val
+
+
+def op_mod(thread, reg, value):
+    thread.registers[reg] %= thread.get(value)
 
 
 def op_snd(thread, reg, target):
@@ -71,10 +66,7 @@ while any(not thread.blocked for thread in threads):
         op, reg, *args = program[thread.pc]
 
         if op == 'jgz':
-            try:
-                x = int(reg)
-            except ValueError:
-                x = thread.registers[reg]
+            x = thread.get(reg)
             if x > 0:
                 try:
                     thread.pc += int(args[0])
@@ -92,7 +84,7 @@ while any(not thread.blocked for thread in threads):
 
             thread.registers[reg] = thread.messages.popleft()
         else:
-            ops[op](thread.registers, reg, *args)
+            ops[op](thread, reg, *args)
 
         thread.pc += 1
 

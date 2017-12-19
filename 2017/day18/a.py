@@ -1,20 +1,7 @@
 from collections import defaultdict
 
-LATEST_SOUND = 'LATEST_SOUND'
-
-source_code = '''set a 1
-add a 2
-mul a a
-mod a 5
-snd a
-set a 0
-rcv a
-jgz a -1
-set a 1
-jgz a -2'''
-
 program = [x.split() for x in open('program.dat')]
-
+LATEST_SOUND = 'LATEST_SOUND'
 registers = defaultdict(int)
 
 
@@ -56,18 +43,20 @@ ops = {
 }
 pc = 0
 while True:
-    op, reg, *args = program[pc]
+    op, *args = program[pc]
 
     if op == 'jgz':
+        reg, arg = args
         if registers[reg] > 0:
-            pc += int(args[0])
+            pc += int(arg)
             continue
     elif op == 'rcv':
+        reg = args[0]
         if registers[reg]:
             registers[reg] = registers[LATEST_SOUND]
             print(registers[reg])
             break
     else:
-        ops[op](reg, *args)
+        ops[op](*args)
 
     pc += 1

@@ -11,6 +11,10 @@ class Particle(object):
         self.v = v
         self.a = a
 
+    def tick(self):
+        self.v = Vector(self.v.x + self.a.x, self.v.y + self.a.y, self.v.z + self.a.z)
+        self.p = Vector(self.p.x + self.v.x, self.p.y + self.v.y, self.p.z + self.v.z)
+
 
 def parse_particle(i, s):
     px, py, pz, vx, vy, vz, ax, ay, az = map(int, re.findall('-?\d+', s))
@@ -25,7 +29,6 @@ for _ in range(10_000):  # Ought to be enough for anybody... >.>
         coordinates[particle.p].append(particle)
     particles = [particle for particle in particles if len(coordinates[particle.p]) == 1]
     for particle in particles:
-        particle.v = Vector(particle.v.x + particle.a.x, particle.v.y + particle.a.y, particle.v.z + particle.a.z)
-        particle.p = Vector(particle.p.x + particle.v.x, particle.p.y + particle.v.y, particle.p.z + particle.v.z)
+        particle.tick()
 
 print(len(particles))

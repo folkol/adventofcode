@@ -1,20 +1,11 @@
+N = 10_000
 UP = (0, -1)
 DOWN = (0, 1)
 LEFT = (-1, 0)
 RIGHT = (1, 0)
 
-turn_left = {
-    UP: LEFT,
-    DOWN: RIGHT,
-    LEFT: DOWN,
-    RIGHT: UP
-}
-turn_right = {
-    UP: RIGHT,
-    DOWN: LEFT,
-    LEFT: UP,
-    RIGHT: DOWN
-}
+turn_left = {UP: LEFT, DOWN: RIGHT, LEFT: DOWN, RIGHT: UP}
+turn_right = {UP: RIGHT, DOWN: LEFT, LEFT: UP, RIGHT: DOWN}
 
 data = [list(line.strip()) for line in open('map.dat')]
 
@@ -47,19 +38,17 @@ def print_grid():
 
 
 num_infected = 0
-for _ in range(10_000):
+for _ in range(N):
     current = grid.get((x, y), '.')
-    if current == '#':
-        direction = turn_right[direction]
-    else:
-        direction = turn_left[direction]
     if current == '.':
+        direction = turn_left[direction]
         grid[x, y] = '#'
         num_infected += 1
     else:
+        direction = turn_right[direction]
         grid[x, y] = '.'
     x += direction[0]
     y += direction[1]
 
-print_grid()
+# print_grid()
 print(num_infected)

@@ -1,18 +1,17 @@
 def to_matrix(s):
-    """123/456/789 -> [[1,2,3],[4,5,6],[7,8,9]]"""
+    """'123/456/789' -> [[1,2,3],[4,5,6],[7,8,9]]"""
     return [list(row) for row in s.split('/')]
 
 
 def to_string(m):
-    """[[1,2,3],[4,5,6],[7,8,9]] -> 123/456/789"""
+    """[[1,2,3],[4,5,6],[7,8,9]] -> '123/456/789'"""
     return '/'.join(''.join(x) for x in m)
 
 
 def symmetries(matrix):
-    """Generates all elements of the dihedral group containing `matrix`."""
+    """Generates the rotation and reflection symmetries of `matrix`."""
 
     def rotate(m):
-        """Rotates the list of lists 90 degrees."""
         return list(zip(*m[::-1]))
 
     def vflip(m):
@@ -37,17 +36,29 @@ def symmetries(matrix):
     yield dflip2(matrix)
 
 
-data = (
-    '../.# => ##./#../...',
-    '.#./..#/### => #..#/..../..../#..#'
-)
-
-
 def expand_rules(data):
     for datum in data:
         rule, result = datum.split(' => ')
         for symmetry in symmetries(to_matrix(rule)):
             yield to_string(symmetry), result
+
+
+def enhance(pattern, n, m):
+    """Creates an enhanced pattern according to `rules`."""
+
+    def mslice(m, x, y, n):
+        """Extracts 2d-slice of size n at pos x, y in matrix m."""
+        return [row[y * n: y * n + n] for row in m[x * n: x * n + n]]
+
+    size = len(pattern)
+    new_pattern = [list(range(size * m // n)) for _ in range(size * m // n)]
+    for x in range(size // n):
+        for y in range(size // n):
+            result = rules[to_string(mslice(pattern, x, y, n))]
+            for i, row in enumerate(to_matrix(result)):
+                for j, col in enumerate(row):
+                    new_pattern[x * m + i][y * m + j] = col
+    return new_pattern
 
 
 pattern = [
@@ -58,31 +69,9 @@ pattern = [
 data = (line.strip() for line in open('rules.dat'))
 rules = {rule: result for rule, result in expand_rules(data)}
 for _ in range(5):
-    size = len(pattern)
     if len(pattern) % 2 == 0:
-        new_pattern = [list(range(size * 3 // 2)) for _ in range(size * 3 // 2)]
-        for x in range(size // 2):
-            for y in range(size // 2):
-                square = [pattern[x * 2][y * 2:y * 2 + 2],
-                          pattern[x * 2 + 1][y * 2:y * 2 + 2]]
-                result = rules[to_string(square)]
-                for i, row in enumerate(to_matrix(result)):
-                    for j, col in enumerate(row):
-                        new_pattern[x * 3 + i][y * 3 + j] = col
-        pattern = new_pattern
+        pattern = enhance(pattern, 2, 3)
     else:
-        new_pattern = [list(range(size * 4 // 3)) for _ in range(size * 4 // 3)]
-        for x in range(size // 3):
-            for y in range(size // 3):
-                square = [pattern[x * 3][y * 3:y * 3 + 3],
-                          pattern[x * 3 + 1][y * 3:y * 3 + 3],
-                          pattern[x * 3 + 2][y * 3:y * 3 + 3]]
-                result = rules[to_string(square)]
-                for i, row in enumerate(to_matrix(result)):
-                    for j, col in enumerate(row):
-                        new_pattern[x * 4 + i][y * 4 + j] = col
-        pattern = new_pattern
+        pattern = enhance(pattern, 3, 4)
 
-values = sum(line.count('#') for line in pattern)
-assert values == 150, values
-print(values)
+print(sum(line.count('#') for line in pattern))

@@ -9,17 +9,24 @@ def bridges(components, current=[], conn='0'):
     for component in components:
         fst, snd = component
         if fst == conn:
-            bridge = current + [component]
-            yield bridge
-            yield from bridges([c for c in components if c != component], bridge, snd)
+            next_conn = snd
         elif snd == conn:
-            bridge = current + [component]
-            yield bridge
-            yield from bridges([c for c in components if c != component], bridge, fst)
+            next_conn = fst
+        else:
+            continue
+
+        bridge = current + [component]
+        yield bridge
+        yield from bridges([c for c in components if c != component], bridge, next_conn)
 
 
 def strength(bridge):
     return sum(sum(map(int, segment)) for segment in bridge)
 
 
-print(strength(max(bridges(components), key=lambda x: (len(x), strength(x)))))
+def long_and_strong(bridge):
+    return len(bridge), strength(bridge)
+
+
+longest_bridge = max(bridges(components), key=long_and_strong)
+print(strength(longest_bridge))

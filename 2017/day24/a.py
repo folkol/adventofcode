@@ -9,13 +9,15 @@ def bridges(components, current=[], conn='0'):
     for component in components:
         fst, snd = component
         if fst == conn:
-            bridge = current + [component]
-            yield bridge
-            yield from bridges([c for c in components if c != component], bridge, snd)
+            out = snd
         elif snd == conn:
-            bridge = current + [component]
-            yield bridge
-            yield from bridges([c for c in components if c != component], bridge, fst)
+            out = fst
+        else:
+            continue
+
+        bridge = current + [component]
+        yield bridge
+        yield from bridges([c for c in components if c != component], bridge, out)
 
 
 def strength(bridge):
@@ -23,4 +25,3 @@ def strength(bridge):
 
 
 print(max(map(strength, bridges(components))))
-

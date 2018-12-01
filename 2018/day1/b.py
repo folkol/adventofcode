@@ -3,9 +3,10 @@ from itertools import cycle
 
 seen = set()
 frequency = 0
-for delta in cycle(int(term) for term in fileinput.input()):
+terms = (int(term) for term in fileinput.input())
+for i, delta in enumerate(cycle(terms)):
     frequency += delta
     if frequency in seen:
-        print('Repeated frequency:', frequency)
+        print(f'Frequency {frequency} repeats with a period of {i}.')
         break
     seen.add(frequency)

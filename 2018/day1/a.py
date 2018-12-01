@@ -1,3 +1,4 @@
 import fileinput
 
-print(sum(int(term) for term in fileinput.input()))
+frequency_deltas = (int(term) for term in fileinput.input())
+print(sum(frequency_deltas))

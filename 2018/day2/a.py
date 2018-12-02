@@ -2,11 +2,11 @@ import fileinput
 from collections import Counter
 
 
-def checksum(ids):
+def checksum(box_ids):
     twos = 0
     threes = 0
-    for id in ids:
-        letters = Counter(id)
+    for box_id in box_ids:
+        letters = Counter(box_id)
         if 2 in letters.values():
             twos += 1
         if 3 in letters.values():

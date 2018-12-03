@@ -10,6 +10,3 @@ for line in fileinput.input():
             squares[x + i, y + j] += 1
 
 print(sum(x > 1 for x in squares.values()))
-
-
-

@@ -10,4 +10,10 @@ for line in lines:
         for j in range(height):
             squares[x + i, y + j] += 1
 
-print(sum(x > 1 for x in squares.values()))
+for line in lines:
+    claim, x, y, width, height = (int(n) for n in re.findall('(\d+)', line))
+    if all(squares[x + i, y + j] == 1
+           for i in range(width)
+           for j in range(height)):
+        print(f'Claim {claim} is undisputed!')
+        break

@@ -34,6 +34,6 @@ def most_sleepy_minute(arg):
 
 
 guard, minutes = max(guards.items(), key=most_sleepy_minute)
-minute, count = Counter(minutes).most_common(1)[0]
+minute, _ = Counter(minutes).most_common(1)[0]
 
 print(int(guard) * int(minute))

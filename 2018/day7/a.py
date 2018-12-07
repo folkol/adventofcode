@@ -1,19 +1,25 @@
 import re
 from collections import defaultdict
 
+PATTERN = 'Step (.) must be finished before step (.) can begin'
+
+
+def is_candidate(step):
+    return step not in completed and dependencies[step].issubset(completed)
+
+
 steps = set()
 dependencies = defaultdict(set)
+
 with open('steps.dat') as f:
     for line in f:
-        match = re.match('Step (.) must be finished before step (.) can begin.', line)
-        dependency, step = match.groups()
-        steps.add(dependency)
-        steps.add(step)
+        dependency, step = re.match(PATTERN, line).groups()
+        steps.update(dependency, step)
         dependencies[step].add(dependency)
 
-order = []
-while len(order) < len(steps):
-    candidates = {step for step in steps if step not in order and dependencies[step] <= set(order)}
-    next_step = sorted(candidates)[0]
-    order.append(next_step)
-print(''.join(order))
+completed = []
+while len(completed) < len(steps):
+    next_step = next(step for step in sorted(steps) if is_candidate(step))
+    completed.append(next_step)
+
+print(''.join(completed))

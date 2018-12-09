@@ -6,13 +6,10 @@ NUM_MARBLES = 72019 * 100
 
 
 class Node:
-    def __init__(self, marble):
-        self.prev = self
-        self.next = self
+    def __init__(self, marble, prev=None, next=None):
+        self.prev = prev or self
+        self.next = next or self
         self.marble = marble
-
-    def __repr__(self):
-        return f'{self.prev.prev.marble} -> {self.prev.marble} -> [{self.marble}] -> {self.next.marble} -> {self.next.next.marble}'
 
 
 class Circle:
@@ -22,19 +19,15 @@ class Circle:
 
     def place(self, marble):
         self.current = self.current.next
-        node = Node(marble)
-        node.prev = self.current
-        node.next = self.current.next
-        self.current.next.prev = node
-        self.current.next = node
+        node = Node(marble, self.current, self.current.next)
+        self.current.next.prev = self.current.next = node
         self.current = self.current.next
 
     def remove(self):
         for _ in range(7):
             self.current = self.current.prev
         score = self.current.marble
-        self.current.prev.next = self.current.next
-        self.current.next.prev = self.current.prev
+        self.current.prev.next, self.current.next.prev = self.current.next, self.current.prev
         self.current = self.current.next
         return score
 
@@ -50,4 +43,5 @@ for marble, player in zip(marbles, cycle(players)):
         score[player] += circle.remove()
     else:
         circle.place(marble)
+
 print(max(score.values()))

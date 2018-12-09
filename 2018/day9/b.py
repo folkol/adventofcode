@@ -2,7 +2,7 @@ from collections import defaultdict
 from itertools import cycle
 
 NUM_PLAYERS = 458
-NUM_MARBLES = 72019
+NUM_MARBLES = 72019 * 100
 
 
 class Node:
@@ -41,7 +41,6 @@ class Circle:
 
 marbles = iter(range(NUM_MARBLES + 1))
 circle = Circle(next(marbles))
-current = 0
 players = list(range(1, NUM_PLAYERS + 1))
 score = defaultdict(int)
 

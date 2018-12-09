@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 from itertools import cycle
 
 NUM_PLAYERS = 458
@@ -21,4 +21,5 @@ for marble, player in zip(marbles, cycle(players)):
         i = (current + 1) % len(circle)
         current = i + 1
         circle.insert(current, marble)
+    print(*circle, sep=',')
 print(max(score.values()))

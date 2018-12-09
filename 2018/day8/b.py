@@ -3,7 +3,6 @@ with open('tree.dat') as f:
 
 
 def read_node(numbers):
-    global sum
     children = []
     metadata_entries = []
     num_children = int(next(numbers))

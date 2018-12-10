@@ -35,16 +35,13 @@ def print_message(coordinates):
     max_y = max(y for x, y, dx, dy in coordinates)
     for y in range(min_y, max_y + 1):
         for x in range(min_x, max_x + 1):
-            if (x, y) in points:
-                print('*', end='')
-            else:
-                print(' ', end='')
+            print('*' if (x, y) in points else ' ', end='')
         print()
 
 
 for n in count():
     if is_message(coordinates):
-        print('Found message at iteration', n)
+        print(f'Found message after {n} iterations:')
         print_message(coordinates)
         break
     coordinates = [(x + dx, y + dy, dx, dy) for x, y, dx, dy in coordinates]

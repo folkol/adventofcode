@@ -18,6 +18,7 @@ for s in range(1, 300):
     print(s)
     for x in range(1, 301 - s):
         for y in range(1, 301 - s):
+            # total_power x,y,s is total_power x,y,s-1 + the outline at x+s, y+s
             previous = total_power.get((x, y, s - 1), 0)
             total_power[(x, y, s)] = \
                 previous + \

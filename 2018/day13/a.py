@@ -67,14 +67,6 @@ turn = {
 }
 
 for tick in count():
-    # for j in range(30):
-    #     for i in range(30):
-    #         if (i, j) in carts:
-    #             print(carts[(i, j)].direction, end='')
-    #         else:
-    #             print(tracks.get((i, j), ' '), end='')
-    #     print()
-    # print()
     for (x, y), cart in sorted(carts.items(), key=coordinate):
         dx, dy = velocity[cart.direction]
         next_x, next_y = x + dx, y + dy
@@ -83,5 +75,5 @@ for tick in count():
         del carts[(x, y)]
         x, y = next_x, next_y
         carts[(x, y)] = cart
-        cell = tracks[(x, y)]
-        cart.direction, cart.turn = turn.get((cell, cart.direction, cart.turn), (cart.direction, cart.turn))
+        position = ((tracks[(x, y)]), cart.direction, cart.turn)
+        cart.direction, cart.turn = turn.get(position, (cart.direction, cart.turn))

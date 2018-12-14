@@ -10,7 +10,7 @@ with open('plants.dat') as f:
 
         print(rule, '=>', result == '#')
 
-N_GENERATIONS = 20
+N_GENERATIONS = 1000
 state = [False, False, False, False] * N_GENERATIONS + initial_state + [False, False, False, False] * N_GENERATIONS
 
 
@@ -19,8 +19,17 @@ def alive(n):
     return rules.get(t, False)
 
 
-for generation in range(1, 20 + 1):
+previous = 0
+previous_delta = 0
+for generation in range(1, N_GENERATIONS + 1):
     state = [alive(i) for i, n in enumerate(state)]
-    print(''.join('#' if n else '.' for n in state))
+    value = sum(i - 4 * N_GENERATIONS for i, n in enumerate(state) if n)
+    delta = value - previous
+    if delta == previous_delta:
+        print(value + delta * (50000000000 - generation))
+        break
+    # print(''.join('#' if n else '.' for n in state))
+    previous_delta = delta
+    previous = value
+print('Converged')
 
-print(sum(i - 4 * N_GENERATIONS for i, n in enumerate(state) if n))

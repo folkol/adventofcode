@@ -7,10 +7,9 @@ with open('plants.dat') as f:
         configuration, _, result = line.split()
         rule = tuple(x == '#' for x in configuration)
         rules[rule] = result == '#'
-        # print(rule, '=>', result == '#')
 
 N_GENERATIONS = 1000
-state = [False, False, False, False] * N_GENERATIONS + initial_state + [False, False, False, False] * N_GENERATIONS
+state = [False] * 4 * N_GENERATIONS + initial_state + [False] * 4 * N_GENERATIONS
 
 
 def alive(n):
@@ -25,9 +24,10 @@ for generation in range(1, N_GENERATIONS + 1):
     value = sum(i - 4 * N_GENERATIONS for i, n in enumerate(state) if n)
     delta = value - previous
     if delta == previous_delta:
-        print('Converged, cheating...!')
-        print(value + delta * (50000000000 - generation))
+        print(f'Converged after {generation} generations... cheating!')
+        value += delta * (50000000000 - generation)
+        assert value == 2550000000883
+        print(value)
         break
-    # print(''.join('#' if n else '.' for n in state))
     previous_delta = delta
     previous = value

@@ -1,4 +1,6 @@
+import sys
 from collections import deque, defaultdict
+from itertools import count
 
 adjacents = [(0, -1), (0, 1), (-1, 0), (1, 0)]
 
@@ -8,7 +10,7 @@ with open('cave.dat') as f:
     for y, line in enumerate(f):
         for x, cell in enumerate(line.rstrip('\n')):
             if cell in 'EG':
-                mobs[(x, y)] = cell
+                mobs[(x, y)] = [cell, 200]
                 cell = '.'
             map[(x, y)] = cell
 
@@ -17,11 +19,15 @@ def show():
     global y, x, cell
     for y in range(9):
         for x in range(9):
-            cell = mobs.get((x, y)) or map.get((x, y), ' ')
-            print(cell, end='')
+            cell = mobs.get((x, y))
+            if cell:
+                print(cell[0], end='')
+            else:
+                print(map.get((x, y), ' '), end='')
         print()
+    print(*mobs.values())
 
-hp = {pos: 200 for pos in mobs}
+
 def reading_order(item):
     try:
         (x, y), cell = item
@@ -30,9 +36,18 @@ def reading_order(item):
     return y, x
 
 
-while True:
+for round in count():
     for (x, y), current in sorted(mobs.items(), key=reading_order):
-        enemies = [pos for pos, mob in mobs.items() if mob != current]
+        if current[1] < 1:
+            continue
+        enemies = [pos for pos, mob in mobs.items() if mob[0] != current[0]]
+        if not enemies:
+            full_turns = round - 1
+            hps = [hp for _, hp in mobs.values()]
+            print(*hps)
+            hp = sum(hps)
+            print(f'Combat over after {full_turns} full turns. Outcome was {full_turns * hp}')
+            sys.exit(0)
         targets = [(x + dx, y + dy)
                    for x, y in enemies
                    for (dx, dy) in adjacents
@@ -80,6 +95,12 @@ while True:
             step = sorted(steps, key=lambda x: (visited[x], *reading_order(x)))[0]
             mobs[step] = current
             del mobs[(x, y)]
-        adjacent_enemies = [foo in enemies for foo in [(x + dx, y + dy) for dx, dy in adjacents]]
-        # target = sorted(adjacent_enemies, key=lambda e: (200 - hp[e], *reading_order(e)))[0]
-        show()
+        adjacent_enemies = [(foo, mobs[foo]) for foo in [(x + dx, y + dy) for dx, dy in adjacents] if foo in enemies]
+        if adjacent_enemies:
+            target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
+            # print(f'{round}: {current[0]} ({current[1]}) @ {x}, {y} attacks {target}')
+            target[1][1] -= 3
+            if target[1][1] < 1:
+                del mobs[target[0]]
+
+    # show()

@@ -36,8 +36,9 @@ def reading_order(item):
     return y, x
 
 
-for round in count():
+for round in count(1):
     for (x, y), current in sorted(mobs.items(), key=reading_order):
+        # print(f'{x}, {y}, {current}: ')
         if current[1] < 1:
             continue
         enemies = [pos for pos, mob in mobs.items() if mob[0] != current[0]]
@@ -46,7 +47,8 @@ for round in count():
             hps = [hp for _, hp in mobs.values()]
             print(*hps)
             hp = sum(hps)
-            print(f'Combat over after {full_turns} full turns. Outcome was {full_turns * hp}')
+            print(f'Combat over after {full_turns} full turns. Total hp was {hp} and outcome was {full_turns * hp}')
+            show()
             sys.exit(0)
         targets = [(x + dx, y + dy)
                    for x, y in enemies
@@ -93,14 +95,17 @@ for round in count():
             steps = [(x + dx, y + dy) for (dx, dy) in adjacents if
                      map.get((x + dx, y + dy)) == '.' and (x + dx, y + dy) not in mobs]
             step = sorted(steps, key=lambda x: (visited[x], *reading_order(x)))[0]
+            print(f'{round}: {(x, y)} -> {step}')
             mobs[step] = current
             del mobs[(x, y)]
+            (x, y) = step
         adjacent_enemies = [(foo, mobs[foo]) for foo in [(x + dx, y + dy) for dx, dy in adjacents] if foo in enemies]
         if adjacent_enemies:
             target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
-            # print(f'{round}: {current[0]} ({current[1]}) @ {x}, {y} attacks {target}')
             target[1][1] -= 3
+            print(f'{round}: ({x}, {y}) attacks {target}')
             if target[1][1] < 1:
+                print(f'{round}: {target} dies')
                 del mobs[target[0]]
 
-    # show()
+

@@ -95,24 +95,28 @@ def attack(pos, enemies):
             del mobs[target[0]]
 
 
+def are_enemies(mob, current):
+    return mob[0] != current[0]
+
+
 def play_game():
-    for round in count(1):
-        for (x, y), current in sorted(mobs.items(), key=reading_order):
+    for round in count():
+        for pos, current in sorted(mobs.items(), key=reading_order):
             if is_dead(current):
                 continue
-            enemies = [pos for pos, mob in mobs.items() if mob[0] != current[0]]
+            enemies = [pos for pos, mob in mobs.items() if are_enemies(mob, current)]
             if not enemies:
-                done(round - 1)
-            targets = [adjacent for x, y in enemies for adjacent in adjacents(x, y) if cave.get(adjacent) == '.']
+                done(round)
+            targets = [adjacent for enemy in enemies for adjacent in adjacents(*enemy) if cave.get(adjacent) == '.']
             if not targets:
                 continue
-            if not any(foo in enemies for foo in adjacents(x, y)):
-                new_pos = move((x, y), current, targets)
+            if not any(foo in enemies for foo in adjacents(*pos)):
+                new_pos = move(pos, current, targets)
                 if new_pos is None:
                     continue
-                x, y = new_pos
+                pos = new_pos
 
-            attack((x, y), enemies)
+            attack(pos, enemies)
 
 
 play_game()

@@ -37,7 +37,10 @@ def reading_order(item):
 
 
 def play_game(power, mobs):
-    # global x, y, visited
+    for mob in mobs.values():
+        if mob[0] == 'E':
+            mob[2] = power
+    dead_elves = 0
     for round in count(1):
         for (x, y), current in sorted(mobs.items(), key=reading_order):
             # print(f'{x}, {y}, {current}: ')
@@ -49,11 +52,10 @@ def play_game(power, mobs):
             if not enemies:
                 full_turns = round - 1
                 hps = [hp for _, hp, _ in mobs.values()]
-                print(*hps)
                 hp = sum(hps)
-                print(f'Combat over after {full_turns} full turns. Total hp was {hp} and outcome was {full_turns * hp}')
-                show()
-                return
+                print(f'Combat over after {full_turns} full turns. {dead_elves} dead elves with {power} attack power. Total hp was {hp} and outcome was {full_turns * hp}')
+                # show()
+                return dead_elves
             targets = [(x + dx, y + dy)
                        for x, y in enemies
                        for (dx, dy) in adjacents
@@ -107,12 +109,15 @@ def play_game(power, mobs):
                                 foo in enemies]
             if adjacent_enemies:
                 target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
-                target[1][1] -= 3
+                target[1][1] -= current[2]
                 # print(f'{round}: ({x}, {y}) attacks {target}')
                 if target[1][1] < 1:
                     # print(f'{round}: {target} dies')
                     del mobs[target[0]]
+                    if target[1][0] == 'E':
+                        dead_elves += 1
 
 
-play_game(3, {k: [a, b, c] for k, (a, b, c) in mobs.items()})
-play_game(3, {k: [a, b, c] for k, (a, b, c) in mobs.items()})
+for power in count(3):
+    if not play_game(power, {pos: [race, hp, power] for pos, (race, hp, power) in mobs.items()}):
+        break

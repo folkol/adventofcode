@@ -1,4 +1,3 @@
-import sys
 from collections import deque, defaultdict
 from itertools import count
 
@@ -53,7 +52,8 @@ def play_game(power, mobs):
                 full_turns = round - 1
                 hps = [hp for _, hp, _ in mobs.values()]
                 hp = sum(hps)
-                print(f'Combat over after {full_turns} full turns. {dead_elves} dead elves with {power} attack power. Total hp was {hp} and outcome was {full_turns * hp}')
+                print(f'Combat over after {full_turns} full turns. {dead_elves} dead elves with {power} attack power.'
+                      f' Total hp was {hp} and outcome was {full_turns * hp}')
                 # show()
                 return dead_elves
             targets = [(x + dx, y + dy)

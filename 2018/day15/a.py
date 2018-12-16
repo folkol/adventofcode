@@ -69,30 +69,32 @@ def is_dead(mob):
 
 
 def move(pos, current, targets):
-    x, y = pos
-    distances = bfs((x, y), (x, y))
+    distances = bfs(pos, pos)
     target_distances = [distances.get(target) for target in targets if target in distances]
     if not target_distances:
         return None
     min_distance = min(target_distances)
     closest_target = [target for target in targets if target in distances and distances[target] == min_distance]
     chosen_target = sorted(closest_target, key=reading_order)[0]
-    distance_from_chosen = bfs(chosen_target, (x, y))
-    steps = [(x, y) for x, y in adjacents(x, y) if cave.get((x, y)) == '.' and (x, y) not in mobs]
-    step = sorted(steps, key=lambda x: (distance_from_chosen[x], *reading_order(x)))[0]
+    distance_from_chosen = bfs(chosen_target, pos)
+    steps = [step for step in adjacents(*pos) if unoccupied(step)]
+    step = sorted(steps, key=lambda step: (distance_from_chosen[step], *reading_order(step)))[0]
     mobs[step] = current
-    del mobs[(x, y)]
+    del mobs[pos]
     return step
 
 
+def take_damage(target, damage):
+    target[1] -= damage
+
+
 def attack(pos, enemies):
-    x, y = pos
-    adjacent_enemies = [(foo, mobs[foo]) for foo in adjacents(x, y) if foo in enemies]
+    adjacent_enemies = [(foo, mobs[foo]) for foo in adjacents(*pos) if foo in enemies]
     if adjacent_enemies:
-        target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
-        target[1][1] -= 3
-        if target[1][1] < 1:
-            del mobs[target[0]]
+        enemy_pos, enemy = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
+        take_damage(enemy, 3)
+        if is_dead(enemy):
+            del mobs[enemy_pos]
 
 
 def are_enemies(mob, current):

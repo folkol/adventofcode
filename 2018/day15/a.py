@@ -112,11 +112,10 @@ def play_game():
             targets = [adjacent for enemy in enemies for adjacent in adjacents(*enemy) if cave.get(adjacent) == '.']
             if not targets:
                 continue
-            if not any(foo in enemies for foo in adjacents(*pos)):
-                new_pos = move(pos, current, targets)
-                if new_pos is None:
+            if not any(pos in enemies for pos in adjacents(*pos)):
+                pos = move(pos, current, targets)
+                if pos is None:
                     continue
-                pos = new_pos
 
             attack(pos, enemies)
 

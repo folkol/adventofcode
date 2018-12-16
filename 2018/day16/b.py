@@ -80,43 +80,37 @@ def eqrr(regs, A, B, C):
     regs[C] = regs[A] == regs[B]
 
 
-def behaves_like(ops, before, instruction, after):
-    result = []
-    for op in ops:
-        n, A, B, C = instruction
+def find_candidates(before, instruction, after):
+    candidates = []
+    for op in [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]:
+        _, A, B, C = instruction
         regs = list(before)
         op(regs, A, B, C)
         if regs == list(after):
-            result.append(op)
-    return result
+            candidates.append(op)
+    return candidates
 
 
-ops = [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]
-instruction_set = {}
-behaves = defaultdict(set)
+ops = {}
+candidates = defaultdict(set)
 for before, instruction, after in samples:
-    candidates = behaves_like(ops, before, instruction, after)
-    for candidate in candidates:
-        behaves[instruction[0]].add(candidate)
+    for candidate in find_candidates(before, instruction, after):
+        op, *_ = instruction
+        candidates[op].add(candidate)
 
-while behaves:
-    for op, candidates in list(behaves.items()):
-        if len(candidates) == 1:
-            candidate = candidates.pop()
-            instruction_set[op] = candidate
-            for k, v in behaves.items():
-                if candidate in v:
-                    v.remove(candidate)
-            del behaves[op]
-
-for i, op in sorted(instruction_set.items()):
-    print(i, op.__name__)
+while candidates:
+    for op, candidate in [(op, functions.pop()) for op, functions in candidates.items() if len(functions) == 1]:
+        for functions in candidates.values():
+            if candidate in functions:
+                functions.remove(candidate)
+        del candidates[op]
+        ops[op] = candidate
 
 with open('prog.dat') as f:
     registers = [0, 0, 0, 0]
     for line in f:
         op, A, B, C = [int(g) for g in re.findall(r'\d+', line)]
-        instruction_set[op](registers, A, B, C)
-        print(f'{instruction_set[op].__name__.upper()} {A} {B} {C} |', *(int(r) for r in registers))
+        ops[op](registers, A, B, C)
 
+assert registers[0] == 537, registers[0]
 print(registers[0], sep='\t')

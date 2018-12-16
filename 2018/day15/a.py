@@ -32,8 +32,7 @@ def reading_order(item):
     return y, x
 
 
-def done():
-    full_turns = round - 1
+def done(full_turns):
     hps = [hp for _, hp in mobs.values()]
     hp = sum(hps)
     assert full_turns * hp == 190777, (full_turns, hp)
@@ -69,37 +68,51 @@ def is_dead(mob):
     return mob[1] < 1
 
 
-for round in count(1):
-    for (x, y), current in sorted(mobs.items(), key=reading_order):
-        # print(f'{x}, {y}, {current}: ')
-        if is_dead(current):
-            continue
-        enemies = [pos for pos, mob in mobs.items() if mob[0] != current[0]]
-        if not enemies:
-            done()
-        targets = [(dx, dy) for x, y in enemies for (dx, dy) in adjacents(x, y) if cave.get((dx, dy)) == '.']
-        if not targets:
-            continue
-        if not any(foo in enemies for foo in adjacents(x, y)):
-            visited = bfs((x, y), (x, y))
-            in_visited = [visited.get(target) for target in targets if target in visited]
-            if not in_visited:
+def move(pos, current, targets):
+    x, y = pos
+    distances = bfs((x, y), (x, y))
+    target_distances = [distances.get(target) for target in targets if target in distances]
+    if not target_distances:
+        return None
+    min_distance = min(target_distances)
+    closest_target = [target for target in targets if target in distances and distances[target] == min_distance]
+    chosen_target = sorted(closest_target, key=reading_order)[0]
+    distance_from_chosen = bfs(chosen_target, (x, y))
+    steps = [(x, y) for x, y in adjacents(x, y) if cave.get((x, y)) == '.' and (x, y) not in mobs]
+    step = sorted(steps, key=lambda x: (distance_from_chosen[x], *reading_order(x)))[0]
+    mobs[step] = current
+    del mobs[(x, y)]
+    return step
+
+
+def attack(pos, enemies):
+    x, y = pos
+    adjacent_enemies = [(foo, mobs[foo]) for foo in adjacents(x, y) if foo in enemies]
+    if adjacent_enemies:
+        target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
+        target[1][1] -= 3
+        if target[1][1] < 1:
+            del mobs[target[0]]
+
+
+def play_game():
+    for round in count(1):
+        for (x, y), current in sorted(mobs.items(), key=reading_order):
+            if is_dead(current):
                 continue
-            distance = min(in_visited)
-            nearest = [target for target in targets if target in visited and visited[target] == distance]
-            chosen = sorted(nearest, key=reading_order)[0]
-            visited = bfs(chosen, (x, y))
-            steps = [(x, y) for x, y in adjacents(x, y) if cave.get((x, y)) == '.' and (x, y) not in mobs]
-            step = sorted(steps, key=lambda x: (visited[x], *reading_order(x)))[0]
-            # print(f'{round}: {(x, y)} -> {step}')
-            mobs[step] = current
-            del mobs[(x, y)]
-            (x, y) = step
-        adjacent_enemies = [(foo, mobs[foo]) for foo in adjacents(x, y) if foo in enemies]
-        if adjacent_enemies:
-            target = sorted(adjacent_enemies, key=lambda e: (e[1][1], *reading_order(e)))[0]
-            target[1][1] -= 3
-            # print(f'{round}: ({x}, {y}) attacks {target}')
-            if target[1][1] < 1:
-                # print(f'{round}: {target} dies')
-                del mobs[target[0]]
+            enemies = [pos for pos, mob in mobs.items() if mob[0] != current[0]]
+            if not enemies:
+                done(round - 1)
+            targets = [adjacent for x, y in enemies for adjacent in adjacents(x, y) if cave.get(adjacent) == '.']
+            if not targets:
+                continue
+            if not any(foo in enemies for foo in adjacents(x, y)):
+                new_pos = move((x, y), current, targets)
+                if new_pos is None:
+                    continue
+                x, y = new_pos
+
+            attack((x, y), enemies)
+
+
+play_game()

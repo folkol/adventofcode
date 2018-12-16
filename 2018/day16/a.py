@@ -1,5 +1,4 @@
 import re
-from pprint import pprint
 
 with open('samples.dat') as f:
     samples = []
@@ -14,8 +13,6 @@ with open('samples.dat') as f:
         if m:
             after = tuple(int(g) for g in m.groups())
             samples.append((before, instruction, after))
-
-pprint(samples)
 
 
 def addr(regs, A, B, C):
@@ -83,9 +80,8 @@ def eqrr(regs, A, B, C):
 
 
 def behaves_like(before, instruction, after):
-    ops = [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]
     num_like = 0
-    for op in ops:
+    for op in [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]:
         _, A, B, C = instruction
         regs = list(before)
         op(regs, A, B, C)

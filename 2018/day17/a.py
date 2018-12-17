@@ -46,6 +46,42 @@ def inside_bucket(droplet):
         return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
 
 
+def cell_at(droplet):
+    return scan.get(droplet, '.')
+
+
+def cell_below(droplet):
+    return scan.get((droplet[0], droplet[1] + 1), '.')
+
+
+def cell_left(droplet):
+    return scan.get((droplet[0] - 1, droplet[1]))
+
+
+def cell_right(droplet):
+    return scan.get((droplet[0] + 1, droplet[1]))
+
+
+def out_of_play(droplet):
+    return droplet[1] > y_max
+
+
+def move_up(droplet):
+    return droplet[0], droplet[1] - 1
+
+
+def move_down(droplet):
+    return droplet[0], droplet[1] + 1
+
+
+def move_left(droplet):
+    return droplet[0] - 1, droplet[1]
+
+
+def move_right(droplet):
+    return droplet[0] + 1, droplet[1]
+
+
 def scan_down(droplet):
     while cell_below(droplet) in '.|':
         if out_of_play(droplet) or cell_at(droplet) == '|':
@@ -59,52 +95,20 @@ def scan_down(droplet):
     scan_right(droplet)
 
 
-def cell_below(droplet):
-    return scan.get((droplet[0], droplet[1] + 1), '.')
-
-
-def cell_right(droplet):
-    return scan.get((droplet[0] + 1, droplet[1]))
-
-
-def cell_left(droplet):
-    return scan.get((droplet[0] - 1, droplet[1]))
-
-
-def cell_at(droplet):
-    return scan.get(droplet, '.')
-
-
-def out_of_play(droplet):
-    return droplet[1] > y_max
-
-
 def fill_layer(droplet):
     for cell in inside_bucket(droplet):
         scan[cell] = '~'
 
 
 def scan_left(droplet):
-    while scan.get((droplet[0], droplet[1] + 1), '.') in '#~':  # scan left
-        if scan.get(droplet) != '~':
+    while cell_below(droplet) in '#~':
+        if cell_at(droplet) != '~':
             scan[droplet] = '|'
-        if cell_left(droplet) == '#':  # left wall
+        if cell_left(droplet) == '#':
             break
-        droplet = (droplet[0] - 1, droplet[1])
+        droplet = move_left(droplet)
     else:
         scan_down(droplet)
-
-
-def move_right(droplet):
-    return droplet[0] + 1, droplet[1]
-
-
-def move_down(droplet):
-    return droplet[0], droplet[1] + 1
-
-
-def move_up(droplet):
-    return droplet[0], droplet[1] - 1
 
 
 def scan_right(droplet):

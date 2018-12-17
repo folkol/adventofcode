@@ -30,11 +30,11 @@ y_max = max(y for x, y in scan)
 
 
 def plot(droplet, narrow=False):
-
-    if narrow:
-        # if droplet[1] < 1600:
-        # y_min, y_max, x_min, x_max = droplet[1] - 10, droplet[1] + 10, droplet[0] - 20, droplet[0] + 20
+    if not (1690 < droplet[1] < 1700):
         return
+
+    y_min, y_max, x_min, x_max = droplet[1] - 10, droplet[1] + 10, droplet[0] - 20, droplet[0] + 20
+
     for y in range(0, 3):
         print(f'     ', end='')
         for x in range(x_min - 1, x_max + 2):
@@ -50,6 +50,7 @@ def plot(droplet, narrow=False):
             else:
                 print(scan.get((x, y)) or '.', end='')
         print()
+    print(x, y, *droplet)
     print(x, y, *droplet)
     print()
     sleep(.2)
@@ -72,8 +73,9 @@ def is_container(droplet):
             scanner = scanner[0] + 1, scanner[1]
         if left_wall and right_wall:
             return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
-    except RecursionError:
-        plot(droplet)
+    except RecursionError as e:
+        plot(droplet, narrow=True)
+        raise e
 
 
 def left_fall(droplet):
@@ -105,27 +107,29 @@ def fill(spring):
         plot(droplet, narrow=True)
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan left
-        scan[scanner] = '|'
+        if scan.get(scanner) != '~':
+            scan[scanner] = '|'
         if scan.get((scanner[0] - 1, scanner[1])) == '#':  # left wall
             break
         scanner = (scanner[0] - 1, scanner[1])
-        # plot(scanner)
+        plot(scanner, narrow=True)
     else:
         fill(scanner)
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan right
-        scan[scanner] = '|'
+        if scan.get(scanner) != '~':
+            scan[scanner] = '|'
         if scan.get((scanner[0] + 1, scanner[1])) == '#':  # right wall
             break
         scanner = (scanner[0] + 1, scanner[1])
-        # plot(scanner)
+        plot(scanner, narrow=True)
     else:
         fill(scanner)
 
 
 fill(spring)
 
-watered_tiles = sum(cell in '~|' for (x, y), cell in scan.items() if y_min <= y <= y_max)
-# assert watered_tiles == 33242
-# plot(spring)
+watered_tiles = sum(cell == '~' for (x, y), cell in scan.items() if y_min <= y <= y_max)
+
+plot(spring)
 print(watered_tiles)

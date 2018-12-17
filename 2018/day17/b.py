@@ -74,7 +74,7 @@ def is_container(droplet):
         if left_wall and right_wall:
             return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
     except RecursionError as e:
-        plot(droplet, narrow=True)
+        # plot(droplet, narrow=True)
         raise e
 
 
@@ -99,12 +99,12 @@ def fill(spring):
             return
         scan[droplet] = '|'
         droplet = (droplet[0], droplet[1] + 1)
-        plot(droplet, narrow=True)
+        # plot(droplet, narrow=True)
     while is_container(droplet):
         for cell in is_container(droplet):
             scan[cell] = '~'
         droplet = droplet[0], droplet[1] - 1
-        plot(droplet, narrow=True)
+        # plot(droplet, narrow=True)
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan left
         if scan.get(scanner) != '~':
@@ -112,7 +112,7 @@ def fill(spring):
         if scan.get((scanner[0] - 1, scanner[1])) == '#':  # left wall
             break
         scanner = (scanner[0] - 1, scanner[1])
-        plot(scanner, narrow=True)
+        # plot(scanner, narrow=True)
     else:
         fill(scanner)
     scanner = droplet
@@ -122,14 +122,14 @@ def fill(spring):
         if scan.get((scanner[0] + 1, scanner[1])) == '#':  # right wall
             break
         scanner = (scanner[0] + 1, scanner[1])
-        plot(scanner, narrow=True)
+        # plot(scanner, narrow=True)
     else:
         fill(scanner)
 
 
 fill(spring)
 
-watered_tiles = sum(cell == '~' for (x, y), cell in scan.items() if y_min <= y <= y_max)
-
+watered_tiles = sum(cell in '~' for (x, y), cell in scan.items() if y_min <= y <= y_max)
+assert watered_tiles == 27256
 plot(spring)
 print(watered_tiles)

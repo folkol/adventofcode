@@ -1,5 +1,4 @@
 import re
-from time import sleep
 
 scan = {}
 spring = 500, 0
@@ -29,107 +28,101 @@ y_min = min(y for x, y in scan)
 y_max = max(y for x, y in scan)
 
 
-def plot(droplet, narrow=False):
-    if not (1690 < droplet[1] < 1700):
-        return
-
-    y_min, y_max, x_min, x_max = droplet[1] - 10, droplet[1] + 10, droplet[0] - 20, droplet[0] + 20
-
-    for y in range(0, 3):
-        print(f'     ', end='')
-        for x in range(x_min - 1, x_max + 2):
-            print(format(x, '03d')[y], end='')
-        print()
-    for y in range(y_min, y_max + 2):
-        print(f'{y:04d} ', end='')
-        for x in range(x_min - 1, x_max + 2):
-            if (x, y) == (500, 0):
-                print('+', end='')
-            elif (x, y) == droplet:
-                print('o', end='')
-            else:
-                print(scan.get((x, y)) or '.', end='')
-        print()
-    print(x, y, *droplet)
-    print(x, y, *droplet)
-    print()
-    sleep(.2)
+def inside_bucket(droplet):
+    left_wall = right_wall = None
+    while cell_below(droplet) in '#~':
+        if cell_left(droplet) == '#':
+            left_wall = droplet[0] - 1
+            break
+        droplet = move_left(droplet)
+    droplet = droplet
+    while cell_below(droplet) in '#~':
+        if cell_right(droplet) == '#':
+            right_wall = droplet[0] + 1
+            break
+        droplet = move_right(droplet)
+    if left_wall and right_wall:
+        return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
 
 
-def is_container(droplet):
-    try:
-        left_wall = right_wall = None
-        scanner = droplet
-        while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':
-            if scan.get((scanner[0] - 1, scanner[1])) == '#':
-                left_wall = scanner[0] - 1
-                break
-            scanner = scanner[0] - 1, scanner[1]
-        scanner = droplet
-        while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':
-            if scan.get((scanner[0] + 1, scanner[1])) == '#':
-                right_wall = scanner[0] + 1
-                break
-            scanner = scanner[0] + 1, scanner[1]
-        if left_wall and right_wall:
-            return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
-    except RecursionError as e:
-        # plot(droplet, narrow=True)
-        raise e
+def cell_at(droplet):
+    return scan.get(droplet, '.')
 
 
-def left_fall(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1)):
-        scanner = scanner[0] - 1, scanner[1]
-    return scanner[0], scanner[1] + 1
+def cell_below(droplet):
+    return scan.get((droplet[0], droplet[1] + 1), '.')
 
 
-def right_fall(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1)):
-        scanner = scanner[0] + 1, scanner[1]
-    return scanner[0], scanner[1] + 1
+def cell_left(droplet):
+    return scan.get((droplet[0] - 1, droplet[1]), '.')
 
 
-def fill(spring):
-    droplet = spring
-    while scan.get((droplet[0], droplet[1] + 1), '.') in '.|':  # scan down
-        if droplet[1] > y_max or scan.get(droplet, '.') == '|':
+def cell_right(droplet):
+    return scan.get((droplet[0] + 1, droplet[1]), '.')
+
+
+def out_of_play(droplet):
+    return droplet[1] > y_max
+
+
+def move_up(droplet):
+    return droplet[0], droplet[1] - 1
+
+
+def move_down(droplet):
+    return droplet[0], droplet[1] + 1
+
+
+def move_left(droplet):
+    return droplet[0] - 1, droplet[1]
+
+
+def move_right(droplet):
+    return droplet[0] + 1, droplet[1]
+
+
+def flow_down(droplet):
+    while cell_below(droplet) in '.|':
+        if out_of_play(droplet) or cell_at(droplet) == '|':
             return
         scan[droplet] = '|'
-        droplet = (droplet[0], droplet[1] + 1)
-        # plot(droplet, narrow=True)
-    while is_container(droplet):
-        for cell in is_container(droplet):
-            scan[cell] = '~'
-        droplet = droplet[0], droplet[1] - 1
-        # plot(droplet, narrow=True)
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan left
-        if scan.get(scanner) != '~':
-            scan[scanner] = '|'
-        if scan.get((scanner[0] - 1, scanner[1])) == '#':  # left wall
+        droplet = move_down(droplet)
+    while inside_bucket(droplet):
+        fill_layer(droplet)
+        droplet = move_up(droplet)
+    flow_left(droplet)
+    flow_right(droplet)
+
+
+def fill_layer(droplet):
+    for cell in inside_bucket(droplet):
+        scan[cell] = '~'
+
+
+def flow_left(droplet):
+    while cell_below(droplet) in '#~':
+        if cell_at(droplet) != '~':
+            scan[droplet] = '|'
+        if cell_left(droplet) == '#':
             break
-        scanner = (scanner[0] - 1, scanner[1])
-        # plot(scanner, narrow=True)
+        droplet = move_left(droplet)
     else:
-        fill(scanner)
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan right
-        if scan.get(scanner) != '~':
-            scan[scanner] = '|'
-        if scan.get((scanner[0] + 1, scanner[1])) == '#':  # right wall
+        flow_down(droplet)
+
+
+def flow_right(droplet):
+    while cell_below(droplet) in '#~':
+        if cell_at(droplet) != '~':
+            scan[droplet] = '|'
+        if cell_right(droplet) == '#':
             break
-        scanner = (scanner[0] + 1, scanner[1])
-        # plot(scanner, narrow=True)
+        droplet = move_right(droplet)
     else:
-        fill(scanner)
+        flow_down(droplet)
 
 
-fill(spring)
+flow_down(spring)
 
-watered_tiles = sum(cell in '~' for (x, y), cell in scan.items() if y_min <= y <= y_max)
-assert watered_tiles == 27256
-plot(spring)
-print(watered_tiles)
+wet_cells = sum(cell in '~' for (x, y), cell in scan.items() if y_min <= y <= y_max)
+assert wet_cells == 27256, wet_cells
+print(wet_cells)

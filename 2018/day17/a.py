@@ -28,7 +28,7 @@ y_min = min(y for x, y in scan)
 y_max = max(y for x, y in scan)
 
 
-def inside(droplet):
+def inside_bucket(droplet):
     left_wall = right_wall = None
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':
@@ -46,65 +46,80 @@ def inside(droplet):
         return [(x, droplet[1]) for x in range(left_wall + 1, right_wall)]
 
 
-def left_fall(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1)):
-        scanner = scanner[0] - 1, scanner[1]
-    return scanner[0], scanner[1] + 1
-
-
-def right_fall(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1)):
-        scanner = scanner[0] + 1, scanner[1]
-    return scanner[0], scanner[1] + 1
-
-
 def scan_down(droplet):
-    while scan.get((droplet[0], droplet[1] + 1), '.') in '.|':
-        if droplet[1] > y_max or scan.get(droplet, '.') == '|':
+    while cell_below(droplet) in '.|':
+        if out_of_play(droplet) or cell_at(droplet) == '|':
             return
         scan[droplet] = '|'
-        droplet = (droplet[0], droplet[1] + 1)
-    while inside(droplet):
-        droplet = fill_layer(droplet)
+        droplet = move_down(droplet)
+    while inside_bucket(droplet):
+        fill_layer(droplet)
+        droplet = move_up(droplet)
     scan_left(droplet)
     scan_right(droplet)
 
 
+def cell_below(droplet):
+    return scan.get((droplet[0], droplet[1] + 1), '.')
+
+
+def cell_right(droplet):
+    return scan.get((droplet[0] + 1, droplet[1]))
+
+
+def cell_left(droplet):
+    return scan.get((droplet[0] - 1, droplet[1]))
+
+
+def cell_at(droplet):
+    return scan.get(droplet, '.')
+
+
+def out_of_play(droplet):
+    return droplet[1] > y_max
+
+
 def fill_layer(droplet):
-    for cell in inside(droplet):
+    for cell in inside_bucket(droplet):
         scan[cell] = '~'
-    droplet = droplet[0], droplet[1] - 1
-    return droplet
 
 
 def scan_left(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan left
-        if scan.get(scanner) != '~':
-            scan[scanner] = '|'
-        if scan.get((scanner[0] - 1, scanner[1])) == '#':  # left wall
+    while scan.get((droplet[0], droplet[1] + 1), '.') in '#~':  # scan left
+        if scan.get(droplet) != '~':
+            scan[droplet] = '|'
+        if cell_left(droplet) == '#':  # left wall
             break
-        scanner = (scanner[0] - 1, scanner[1])
+        droplet = (droplet[0] - 1, droplet[1])
     else:
-        scan_down(scanner)
+        scan_down(droplet)
+
+
+def move_right(droplet):
+    return droplet[0] + 1, droplet[1]
+
+
+def move_down(droplet):
+    return droplet[0], droplet[1] + 1
+
+
+def move_up(droplet):
+    return droplet[0], droplet[1] - 1
 
 
 def scan_right(droplet):
-    scanner = droplet
-    while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan right
-        if scan.get(scanner) != '~':
-            scan[scanner] = '|'
-        if scan.get((scanner[0] + 1, scanner[1])) == '#':  # right wall
+    while cell_below(droplet) in '#~':
+        if cell_at(droplet) != '~':
+            scan[droplet] = '|'
+        if cell_right(droplet) == '#':
             break
-        scanner = (scanner[0] + 1, scanner[1])
+        droplet = move_right(droplet)
     else:
-        scan_down(scanner)
+        scan_down(droplet)
 
 
 scan_down(spring)
 
-watered_tiles = sum(cell in '~|' for (x, y), cell in scan.items() if y_min <= y <= y_max)
-assert watered_tiles == 33242, watered_tiles
-print(watered_tiles)
+wet_cells = sum(cell in '~|' for (x, y), cell in scan.items() if y_min <= y <= y_max)
+assert wet_cells == 33242, wet_cells
+print(wet_cells)

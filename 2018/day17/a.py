@@ -60,17 +60,26 @@ def right_fall(droplet):
     return scanner[0], scanner[1] + 1
 
 
-def fill(spring):
-    droplet = spring
-    while scan.get((droplet[0], droplet[1] + 1), '.') in '.|':  # scan down
+def scan_down(droplet):
+    while scan.get((droplet[0], droplet[1] + 1), '.') in '.|':
         if droplet[1] > y_max or scan.get(droplet, '.') == '|':
             return
         scan[droplet] = '|'
         droplet = (droplet[0], droplet[1] + 1)
     while inside(droplet):
-        for cell in inside(droplet):
-            scan[cell] = '~'
-        droplet = droplet[0], droplet[1] - 1
+        droplet = fill_layer(droplet)
+    scan_left(droplet)
+    scan_right(droplet)
+
+
+def fill_layer(droplet):
+    for cell in inside(droplet):
+        scan[cell] = '~'
+    droplet = droplet[0], droplet[1] - 1
+    return droplet
+
+
+def scan_left(droplet):
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan left
         if scan.get(scanner) != '~':
@@ -79,7 +88,10 @@ def fill(spring):
             break
         scanner = (scanner[0] - 1, scanner[1])
     else:
-        fill(scanner)
+        scan_down(scanner)
+
+
+def scan_right(droplet):
     scanner = droplet
     while scan.get((scanner[0], scanner[1] + 1), '.') in '#~':  # scan right
         if scan.get(scanner) != '~':
@@ -88,10 +100,10 @@ def fill(spring):
             break
         scanner = (scanner[0] + 1, scanner[1])
     else:
-        fill(scanner)
+        scan_down(scanner)
 
 
-fill(spring)
+scan_down(spring)
 
 watered_tiles = sum(cell in '~|' for (x, y), cell in scan.items() if y_min <= y <= y_max)
 assert watered_tiles == 33242, watered_tiles

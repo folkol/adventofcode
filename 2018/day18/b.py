@@ -26,8 +26,6 @@ def generation(acres):
                     new_acres[(x, y)] = '#'
                 else:
                     new_acres[(x, y)] = '.'
-            else:
-                raise Exception('wuut: ' + acre)
     return new_acres
 
 
@@ -41,7 +39,6 @@ while n < N:
         n += (N - n) // period * period
     seen.append(acres)
     n += 1
+
 cells = list(acres.values())
-result = cells.count('|') * cells.count('#')
-assert result == 203138, result
-print(result)
+print(cells.count('|') * cells.count('#'))

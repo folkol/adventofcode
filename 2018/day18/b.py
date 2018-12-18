@@ -12,9 +12,12 @@ def generation(acres):
     new_acres = acres.copy()
     for y in range(y_max + 1):
         for x in range(x_max + 1):
-            acre = acres[(x, y)]
-            adjacent = [acres.get((x + dx, y + dy)) for dy in range(-1, 2) for dx in range(-1, 2) if (dx, dy) != (0, 0)]
+            adjacent = [acres.get((x + dx, y + dy))
+                        for dy in range(-1, 2)
+                        for dx in range(-1, 2)
+                        if (dx, dy) != (0, 0)]
 
+            acre = acres[(x, y)]
             if acre == '.':
                 if adjacent.count('|') >= 3:
                     new_acres[(x, y)] = '|'

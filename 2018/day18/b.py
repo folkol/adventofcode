@@ -49,16 +49,10 @@ while n < N:
     if acres in seen:
         i = seen.index(acres)
         cycle_length = n - i
-        print('Cycle at', n, cycle_length)
-        while n < N - cycle_length:
-            n += cycle_length
-        seen.clear()
+        n += (N - n) - ((N - n) % cycle_length)
     seen.append(acres)
-    # if acres == initial:
-    #     print('Repeats at n', n)
-    #     break
-    print(n)
     n += 1
-    # plot()
 cells = list(acres.values())
-print(cells.count('|') * cells.count('#'))
+result = cells.count('|') * cells.count('#')
+assert result == 203138, result
+print(result)

@@ -8,15 +8,6 @@ x_max = max(x for x, y in acres)
 y_max = max(y for x, y in acres)
 
 
-def plot():
-    for y in range(y_max + 1):
-        for x in range(x_max + 1):
-            acre = acres[(x, y)]
-            print(acre, end='')
-        print()
-    print()
-
-
 def generation(acres):
     new_acres = acres.copy()
     for y in range(y_max + 1):
@@ -42,14 +33,12 @@ def generation(acres):
 
 N = 1000000000
 n = 0
-initial = acres.copy()
 seen = []
 while n < N:
     acres = generation(acres)
     if acres in seen:
-        i = seen.index(acres)
-        cycle_length = n - i
-        n += (N - n) - ((N - n) % cycle_length)
+        period = n - seen.index(acres)
+        n += (N - n) // period * period
     seen.append(acres)
     n += 1
 cells = list(acres.values())

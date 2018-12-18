@@ -38,8 +38,6 @@ for minute in range(10):
             else:
                 raise Exception('wuut: ' + acre)
     acres = new_acres
-    plot()
-print(acres)
-l = list(acres.values())
-print(l)
-print(l.count('|') * l.count('#'))
+    # plot()
+cells = list(acres.values())
+print(cells.count('|') * cells.count('#'))

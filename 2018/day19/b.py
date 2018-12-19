@@ -50,20 +50,17 @@ def init():
 
 
 def main():
+    r[3] = 1
     while True:
-        r[3] = 1
-        while True:
-            r[2] = 1
-            while True:
-                r[4] = r[2] * r[3]
-                if r[1] == r[4]:
-                    r[0] += r[3]
-                r[2] += 1
-                if r[2] > r[1]:
-                    break
-            r[3] += 1
-            if r[3] > r[1]:
-                return
+        r[2] = 1
+        while r[1] >= r[2]:
+            r[4] = r[2] * r[3]
+            if r[1] == r[4]:
+                r[0] += r[3]
+            r[2] += 1
+        r[3] += 1
+        if r[3] > r[1]:
+            return
 
 
 init()

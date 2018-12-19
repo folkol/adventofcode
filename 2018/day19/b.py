@@ -51,7 +51,7 @@ def init():
 
 def main():
     r[3] = 1
-    while True:
+    while r[1] >= r[3]:
         r[2] = 1
         while r[1] >= r[2]:
             r[4] = r[2] * r[3]
@@ -59,8 +59,6 @@ def main():
                 r[0] += r[3]
             r[2] += 1
         r[3] += 1
-        if r[3] > r[1]:
-            return
 
 
 init()

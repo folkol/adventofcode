@@ -1,4 +1,7 @@
-"""Calculate the sum of all divisors of a large number (defined by init part: 17–35)
+"""Calculate the sum of all divisors of a large number (defined by init part: 17–35).
+
+(For people who are curious of how I ended up with this Python program, see the git history.)
+
  0 addi 5 16 5		; GOTO 17
  1 seti 1 _ 3		; #3 = 1
  2 seti 1 _ 2		; #2 = 1

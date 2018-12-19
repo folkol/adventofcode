@@ -1,4 +1,4 @@
-"""
+"""Calculate the sum of all divisors of a large number (defined by init part: 17–35)
  0 addi 5 16 5		; GOTO 17
  1 seti 1 _ 3		; #3 = 1
  2 seti 1 _ 2		; #2 = 1
@@ -37,12 +37,19 @@
 35 seti 0 _ 5		; GOTO 1				|
 """
 
-N = 867
-result = 0
-for A in range(1, N + 1):
-    for B in range(1, N + 1):
-        if N == B * A:
-            result += A
+# Calculate the sum of all divisors of N, including N.
 
-assert result == 1228, result
+from math import sqrt
+
+N = 10_551_267
+# N = 867
+
+result = 0
+skip = sqrt(N)  # Only count factors once, no matter their multiplicity
+for i in range(1, int(sqrt(N))):
+    if N % i == 0:
+        result += i
+        if i != skip:
+            result += N // i
+
 print(result)

@@ -86,10 +86,11 @@ while True:
     if IP < 0 or IP >= len(program):
         break
     op, A, B, C = program[IP]
+    pre = registers.copy()
     registers[ipr] = IP
     locals()[op](registers, int(A), int(B), int(C))
     IP = registers[ipr]
-    # print(IP, *registers, sep='\t')
+    # print(IP, op, A, B, C, *pre, '->', *registers, sep='\t')
     IP += 1
 
 print(registers[0], sep='\t')

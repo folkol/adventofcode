@@ -37,15 +37,12 @@
 35 seti 0 _ 5		; GOTO 1				|
 """
 
-# r = [0, 10_551_267, 0, 1, 10_550_400, 0]
-# r = [0, 867, 0, 1, 31, 0]
-result = 0
 N = 867
+result = 0
 for A in range(1, N + 1):
     for B in range(1, N + 1):
         if N == B * A:
             result += A
-    # print(*r, sep='\t')
 
 assert result == 1228, result
 print(result)

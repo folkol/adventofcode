@@ -1,11 +1,5 @@
 from collections import defaultdict, deque
 
-pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
-pattern = r"^N(W|(S|W))N$"
-pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
-pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
-pattern = r"^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"
-pattern = r"^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$"
 with open('paths.dat') as f:
     pattern = f.read()
 
@@ -29,11 +23,6 @@ def parse_alternatives(i, rest):
             start = c + 1
         c += 1
     return c - i, alernatives
-
-
-doors = defaultdict(set)
-
-seen = set()
 
 
 def paths(pos, start, end, pattern):
@@ -68,43 +57,25 @@ def paths(pos, start, end, pattern):
     return pos
 
 
+def bfs():
+    start = 0, 0
+    q = deque()
+    q.append(start)
+    distances = {start: 0}
+    while q:
+        cell = q.popleft()
+        for adjacent in [c for c in doors[cell]]:
+            if adjacent not in distances:
+                q.append(adjacent)
+                distances[adjacent] = distances[cell] + 1
+    return distances
+
+
+seen = set()
+doors = defaultdict(set)
 paths((0, 0), 1, len(pattern) - 1, pattern)
+distances = bfs()
 
-
-def plot(doors):
-    x_min = min(x for x, y in doors)
-    x_max = max(x for x, y in doors)
-    y_min = min(y for x, y in doors)
-    y_max = max(y for x, y in doors)
-    print('#', end='')
-    for x in range(x_min, x_max + 1):
-        print('#', end='')
-        print('#', end='')
-    print()
-    for y in range(y_min, y_max + 1):
-        print('#', end='')
-        for x in range(x_min, x_max + 1):
-            print('X' if (x, y) == (0, 0) else '.', end='')
-            print('|' if (x + 1, y) in doors[(x, y)] else '#', end='')
-        print()
-        print('#', end='')
-        for x in range(x_min, x_max + 1):
-            print('-' if (x, y + 1) in doors[(x, y)] else '#', end='')
-            print('#', end='')
-        print()
-
-
-plot(doors)
-
-start = 0, 0
-q = deque()
-q.append(start)
-distances = {start: 0}
-while q:
-    cell = q.popleft()
-    for adjacent in [c for c in doors[cell]]:
-        if adjacent not in distances:
-            q.append(adjacent)
-            distances[adjacent] = distances[cell] + 1
-
-print(max(d for d in distances.values()))
+distance = max(d for d in distances.values())
+assert distance == 3810, distance
+print(distance)

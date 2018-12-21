@@ -1,14 +1,13 @@
-from collections import defaultdict
-from pprint import pprint
+from collections import defaultdict, deque
 
-with open('pattern.dat') as f:
-    pattern = f.read()
 pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
 pattern = r"^N(W|(S|W))N$"
 pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
 pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
 pattern = r"^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"
 pattern = r"^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$"
+with open('paths.dat') as f:
+    pattern = f.read()
 
 
 def parse_alternatives(i, rest):
@@ -34,8 +33,13 @@ def parse_alternatives(i, rest):
 
 doors = defaultdict(set)
 
+seen = set()
+
 
 def paths(pos, start, end, pattern):
+    if (pos, start, end, pattern) in seen:
+        return
+    seen.add((pos, start, end, pattern))
     i = start
     while i < end:
         c = pattern[i]
@@ -90,5 +94,17 @@ def plot(doors):
         print()
 
 
-
 plot(doors)
+
+start = 0, 0
+q = deque()
+q.append(start)
+distances = {start: 0}
+while q:
+    cell = q.popleft()
+    for adjacent in [c for c in doors[cell]]:
+        if adjacent not in distances:
+            q.append(adjacent)
+            distances[adjacent] = distances[cell] + 1
+
+print(max(d for d in distances.values()))

@@ -6,6 +6,9 @@ with open('pattern.dat') as f:
 pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
 pattern = r"^N(W|(S|W))N$"
 pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
+pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
+pattern = r"^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"
+pattern = r"^WSSEESWWWNW(S|NENNEEEENN(ESSSSW(NWSW|SSEN)|WSWWN(E|WWS(E|SS))))$"
 
 
 def parse_alternatives(i, rest):
@@ -77,7 +80,7 @@ def plot(doors):
     for y in range(y_min, y_max + 1):
         print('#', end='')
         for x in range(x_min, x_max + 1):
-            print('.', end='')
+            print('X' if (x, y) == (0, 0) else '.', end='')
             print('|' if (x + 1, y) in doors[(x, y)] else '#', end='')
         print()
         print('#', end='')

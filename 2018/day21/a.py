@@ -33,13 +33,8 @@
 30: seti 5 1 1          ; #1 = 5                ; GOTO 6
 """
 
-# 00: r4 = 123
-# 01: r4 = 72
-# 02: r4 = 1
-# 03: GOTO 05
-# 04: GOTO 0
 # 05: r4 = 0
-# 06: r4 |= 65536
+# 06: ...
 # 07: r4 = 3730679
 # 08: #5 = #3 & 255
 # 09: r4 += #5
@@ -64,3 +59,109 @@
 # 28: if r4 > #0:
 # 29:   HALT
 # 30: GOTO 6
+
+
+#     while True:
+# 07:     r4 = 3730679
+#         while True:
+# 08:         #5 = #3 & 255
+# 09:         r4 += #5
+# 10:         mask out 24 bits out of #4
+# 11:         r4 *= 65899
+# 12:         mask out 24 bits out of #4
+# 13:         if 256 > #3 and r4 > #0:
+#                 HALT
+# 17:         #5 = 0
+#             while True:
+# 18:             #2 = #5 + 1
+# 19:             #2 *= 256
+# 20:             if #2 > #3:
+#                     GOTO 26
+# 24:             #5 += 1
+# 26:         #3 = #5
+
+import re
+
+
+def addr(regs, A, B, C):
+    regs[C] = regs[A] + regs[B]
+
+
+def addi(regs, A, B, C):
+    regs[C] = regs[A] + B
+
+
+def mulr(regs, A, B, C):
+    regs[C] = regs[A] * regs[B]
+
+
+def muli(regs, A, B, C):
+    regs[C] = regs[A] * B
+
+
+def banr(regs, A, B, C):
+    regs[C] = regs[A] & regs[B]
+
+
+def bani(regs, A, B, C):
+    regs[C] = regs[A] & B
+
+
+def borr(regs, A, B, C):
+    regs[C] = regs[A] | regs[B]
+
+
+def bori(regs, A, B, C):
+    regs[C] = regs[A] | B
+
+
+def setr(regs, A, _, C):
+    regs[C] = regs[A]
+
+
+def seti(regs, A, B, C):
+    regs[C] = A
+
+
+def gtir(regs, A, B, C):
+    regs[C] = A > regs[B]
+
+
+def gtri(regs, A, B, C):
+    regs[C] = regs[A] > B
+
+
+def gtrr(regs, A, B, C):
+    regs[C] = regs[A] > regs[B]
+
+
+def eqir(regs, A, B, C):
+    regs[C] = A == regs[B]
+
+
+def eqri(regs, A, B, C):
+    regs[C] = regs[A] == B
+
+
+def eqrr(regs, A, B, C):
+    regs[C] = regs[A] == regs[B]
+
+
+with open('prog.dat') as f:
+    registers = [0, 0, 0, 0, 0, 0]
+    ipr = int(next(f).split()[1])
+    program = [re.match(r'(\w+) (\d+) (\d+) (\d+)', line).groups() for line in f]
+
+
+# First time we get to IP 28, r4 is 16128384
+IP = 0
+while True:
+    if IP < 0 or IP >= len(program):
+        break
+    op, A, B, C = program[IP]
+    registers[ipr] = IP
+    locals()[op](registers, int(A), int(B), int(C))
+    IP = registers[ipr]
+    IP += 1
+
+print(registers[0], sep='\t')

@@ -65,17 +65,6 @@ def eqrr(regs, A, B, C):
     regs[C] = regs[A] == regs[B]
 
 
-def find_candidates(before, instruction, after):
-    candidates = []
-    for op in [addr, addi, mulr, muli, banr, bani, borr, bori, setr, seti, gtir, gtri, gtrr, eqir, eqri, eqrr]:
-        _, A, B, C = instruction
-        regs = list(before)
-        op(regs, A, B, C)
-        if regs == list(after):
-            candidates.append(op)
-    return candidates
-
-
 with open('prog.dat') as f:
     registers = [0, 0, 0, 0, 0, 0]
     ipr = int(next(f).split()[1])

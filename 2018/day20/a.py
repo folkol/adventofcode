@@ -1,5 +1,7 @@
-rest = r"^ENWWW(NEEE|SSE(EE|N))$"
-rest = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
+from collections import defaultdict
+
+pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
+pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
 
 
 def parse_alternatives(rest):
@@ -23,15 +25,33 @@ def parse_alternatives(rest):
     return c, alernatives
 
 
-def paths(base, rest):
-    if '(' in rest:
-        start = rest.index('(')
-        chars, alternatives = parse_alternatives(rest[start:])
-        for alternative in alternatives:
-            yield from paths(base + rest[:start], alternative + rest[start + chars + 1:])
-    else:
-        yield base + rest[:-1]
+doors = defaultdict(set)
 
 
-for path in paths('', rest[1:]):
+def paths(pos, pattern):
+    i = 0
+    while i < len(pattern):
+        c = pattern[i]
+        if c == '(':
+            chars, alternatives = parse_alternatives(pattern)
+            for alternative in alternatives:
+                paths(pos, alternative + pattern[i:])
+            i += chars
+        elif c == 'N':
+            adj = pos[0], pos[1] - 1
+        elif c == 'E':
+            adj = pos[0] + 1, pos[1]
+        elif c == 'S':
+            adj = pos[0], pos[1] + 1
+        elif c == 'W':
+            adj = pos[0] - 1, pos[1]
+        else:
+            raise ValueError('Unexpected c:', c)
+        doors[pos].add(adj)
+        doors[adj].add(pos)
+        pos = adj
+        i += 1
+
+
+for path in paths((0, 0), pattern[1:]):
     print(path)

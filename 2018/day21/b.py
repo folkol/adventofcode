@@ -6,7 +6,7 @@
 03: addr 4 1 1          ; #1 = #1 + #4          ; GOTO 05
 04: seti 0 0 1          ; #1 = 0                ; GOTO 0
 05: seti 0 1 4          ; #4 = 0                ; #4 = 0
-06: bori 4 65536 3      ; #3 = #4 | 65536       ; #4 |= 65536
+06: bori 4 65536 3      ; #3 = #4 | 65536       ; #3 = #4 | 65536
 07: seti 3730679 4 4    ; #4 = 3730679          ; #4 = 3730679
 08: bani 3 255 5        ; #5 = #3 & 255         ; #5 = #3 & 255
 09: addr 4 5 4          ; #4 = #4 + #5          ; #4 += #5
@@ -56,7 +56,7 @@
 # 25: GOTO 18
 # 26: #3 = #5
 # 27: GOTO 8
-# 28: if r4 == #0:
+# 28: if r4 > #0:
 # 29:   HALT
 # 30: GOTO 6
 
@@ -79,6 +79,26 @@
 #                     GOTO 26
 # 24:             #5 += 1
 # 26:         #3 = #5
+
+
+#     while True:
+# 07:     r4 = 3730679
+#         while True:
+# 08:         #5 = 256
+# 09:         r4 += #5
+# 10:         mask out 24 bits out of #4
+# 11:         r4 *= 65899
+# 12:         mask out 24 bits out of #4
+# 13:         if 256 > #3 and r4 == #0:
+#                 HALT
+# 17:         #5 = 63257
+#
+# 18:
+# 19:
+# 20:
+#
+# 24:
+# 26:         #3 = 63257
 
 import re
 
@@ -152,17 +172,28 @@ with open('prog.dat') as f:
     ipr = int(next(f).split()[1])
     program = [re.match(r'(\w+) (\d+) (\d+) (\d+)', line).groups() for line in f]
 
-
 # First time we get to IP 28, r4 is 16128384
 m = IP = 0
+seen = set()
 while True:
     if IP < 0 or IP >= len(program):
         break
+    # print()
+    # for i, r in enumerate(registers):
+    #     print(f'#{i}={r}')
+    # for i, line in enumerate(program):
+    #     print('> ' if i == IP else '  ', format(i, '02d'), *line)
     op, A, B, C = program[IP]
+    if IP == 28:
+        r4 = registers[4]
+        print(len(seen), r4)
+        if r4 in seen:
+            # Last number before repetition is the key
+            print('Repetition with r4 ==', r4)
+            break
+        seen.add(r4)
+
     registers[ipr] = IP
     locals()[op](registers, int(A), int(B), int(C))
-    # print(*registers, sep='\t\t')
     IP = registers[ipr]
     IP += 1
-
-print(registers[0], sep='\t')

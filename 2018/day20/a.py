@@ -1,11 +1,11 @@
 from collections import defaultdict
 from pprint import pprint
 
-pattern = r"^N(W|(S|W))N$"
-pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
-pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
 with open('pattern.dat') as f:
     pattern = f.read()
+pattern = r"^ENNWSWW(NEWS|)SSSEEN(WNSE|)EE(SWEN|)NNN$"
+pattern = r"^N(W|(S|W))N$"
+pattern = r"^ENWWW(NEEE|SSE(EE|N))$"
 
 
 def parse_alternatives(i, rest):
@@ -17,13 +17,13 @@ def parse_alternatives(i, rest):
             nesting += 1
         elif rest[c] == ')':
             if nesting == 0:
-                alernatives.append(rest[start:c])
+                alernatives.append((start, c))
                 c += 1
                 break
             else:
                 nesting -= 1
         elif rest[c] == '|' and nesting == 0:
-            alernatives.append(rest[start:c])
+            alernatives.append((start, c))
             start = c + 1
         c += 1
     return c - i, alernatives
@@ -32,14 +32,15 @@ def parse_alternatives(i, rest):
 doors = defaultdict(set)
 
 
-def paths(pos, pattern):
-    i = 0
-    while i < len(pattern):
+def paths(pos, start, end, pattern):
+    i = start
+    while i < end:
         c = pattern[i]
         if c == '(':
             chars, alternatives = parse_alternatives(i, pattern)
             for alternative in alternatives:
-                paths(pos, alternative + pattern[i + chars:])
+                cont_pos = paths(pos, *alternative, pattern)
+                paths(cont_pos, i + chars, end, pattern)
             i += chars
             break
         else:
@@ -57,8 +58,34 @@ def paths(pos, pattern):
             doors[adj].add(pos)
             pos = adj
         i += 1
+    return pos
 
 
-paths((0, 0), pattern[1:-1])
+paths((0, 0), 1, len(pattern) - 1, pattern)
 
-pprint(doors)
+
+def plot(doors):
+    x_min = min(x for x, y in doors)
+    x_max = max(x for x, y in doors)
+    y_min = min(y for x, y in doors)
+    y_max = max(y for x, y in doors)
+    print('#', end='')
+    for x in range(x_min, x_max + 1):
+        print('#', end='')
+        print('#', end='')
+    print()
+    for y in range(y_min, y_max + 1):
+        print('#', end='')
+        for x in range(x_min, x_max + 1):
+            print('.', end='')
+            print('|' if (x + 1, y) in doors[(x, y)] else '#', end='')
+        print()
+        print('#', end='')
+        for x in range(x_min, x_max + 1):
+            print('-' if (x, y + 1) in doors[(x, y)] else '#', end='')
+            print('#', end='')
+        print()
+
+
+
+plot(doors)

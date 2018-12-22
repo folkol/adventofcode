@@ -1,5 +1,6 @@
-from collections import namedtuple, deque
+from collections import namedtuple
 from dataclasses import make_dataclass
+from heapq import heappop, heappush
 from itertools import product
 
 Coordinate = namedtuple('Coordinate', ('x', 'y'))
@@ -26,7 +27,7 @@ GEAR_OPTIONS = {
 cave = {}
 
 print('Generating map...')
-for pos in (Coordinate(x, y) for x, y in product(range(TARGET.y * 3), range(TARGET.y * 3))):
+for pos in (Coordinate(x, y) for x, y in product(range(TARGET.y + 50), range(TARGET.y + 50))):
     if pos in (MOUTH, TARGET):
         index = 0
     elif pos.y == 0:
@@ -52,7 +53,7 @@ def enqueue(to, equipped, time):
     if ('torch', TARGET) in quickest and time > quickest[('torch', TARGET)]:
         return
     if (equipped, to) not in quickest or quickest[(equipped, to)] > time:
-        queue.append((equipped, to, time))
+        heappush(queue, (time, to, equipped))
         for gear in GEAR_OPTIONS[cave[to].type]:
             dtime = time if gear == equipped else time + 7
             if (equipped, to) not in quickest or quickest[(equipped, to)] > dtime:
@@ -60,12 +61,11 @@ def enqueue(to, equipped, time):
 
 
 print('Searching...')
-queue = deque()
-equipped = 'torch'
-queue.append(('torch', MOUTH, 0))
-quickest = {('torch', MOUTH): 0}
+queue = []
+quickest = {}
+enqueue((0, 0), 'torch', 0)
 while queue:
-    equipped, coordinate, time = queue.popleft()
+    time, coordinate, equipped = heappop(queue)
 
     if coordinate == TARGET:
         dtime = time if equipped == 'torch' else time + 7

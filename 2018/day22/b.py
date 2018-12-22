@@ -24,9 +24,8 @@ GEAR_OPTIONS = {
     'narrow': {'torch', 'neither'}
 }
 
-cave = {}
-
 print('Generating map...')
+cave = {}
 for pos in (Coordinate(x, y) for x, y in product(range(TARGET.y + 50), range(TARGET.y + 50))):
     if pos in (MOUTH, TARGET):
         index = 0
@@ -38,26 +37,22 @@ for pos in (Coordinate(x, y) for x, y in product(range(TARGET.y + 50), range(TAR
         index = cave[pos.x - 1, pos.y].erosion * cave[pos.x, pos.y - 1].erosion
 
     erosion = (index + DEPTH) % 20183
-
     cave[pos] = Region(REGION_TYPE[erosion % 3], index, erosion)
 
 
-def adjacents(pos):
-    x, y = pos
+def adjacents(x, y):
     return ((x + dx, y + dy)
             for dx, dy in [(0, -1), (1, 0), (0, 1), (-1, 0)]
             if (x + dx) >= 0 and (y + dy) >= 0)
 
 
-def enqueue(to, equipped, time):
-    if ('torch', TARGET) in quickest and time > quickest[('torch', TARGET)]:
+def enqueue(destination, equipped, time):
+    if quickest.get(('torch', TARGET), time) < time:
         return
-    if (equipped, to) not in quickest or quickest[(equipped, to)] > time:
-        heappush(queue, (time, to, equipped))
-        for gear in GEAR_OPTIONS[cave[to].type]:
-            dtime = time if gear == equipped else time + 7
-            if (equipped, to) not in quickest or quickest[(equipped, to)] > dtime:
-                quickest[(equipped, to)] = dtime
+    to = (equipped, destination)
+    if quickest.get(to, time + 1) > time:
+        heappush(queue, (time, destination, equipped))
+        quickest[to] = time
 
 
 print('Searching...')
@@ -66,13 +61,7 @@ quickest = {}
 enqueue((0, 0), 'torch', 0)
 while queue:
     time, coordinate, equipped = heappop(queue)
-
-    if coordinate == TARGET:
-        dtime = time if equipped == 'torch' else time + 7
-        if ('torch', TARGET) in quickest and quickest[('torch', TARGET)] > dtime:
-            quickest[('torch', TARGET)] = dtime
-
-    for adjacent in adjacents(coordinate):
+    for adjacent in adjacents(*coordinate):
         if equipped in GEAR_OPTIONS[cave[adjacent].type]:
             enqueue(adjacent, equipped, time + 1)
     for gear in GEAR_OPTIONS[cave[coordinate].type]:

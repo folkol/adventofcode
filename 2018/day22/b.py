@@ -1,48 +1,33 @@
 from collections import namedtuple, deque
-# from dataclasses import make_dataclass
+from dataclasses import make_dataclass
 from itertools import product
 
 Coordinate = namedtuple('Coordinate', ('x', 'y'))
+Region = make_dataclass('Region', ('type', 'index', 'erosion'))
 
+MOUTH = 0, 0
+DEPTH = 8112
+TARGET = Coordinate(13, 743)
+# DEPTH = 510
+# TARGET = Coordinate(10, 10)
 
-# Region = make_dataclass('Region', ('type', 'index', 'erosion'))
-class Region(object):
-    def __init__(self, type, index, erosion):
-        self.type = type
-        self.index = index
-        self.erosion = erosion
-
-    def type(self):
-        return self.type
-
-    def index(self):
-        return self.index
-
-    def erosion(self):
-        return self.erosion
-
-
-mouth = 0, 0
-depth = 8112
-target = Coordinate(13, 743)
-# depth = 510
-# target = Coordinate(10, 10)
-
-risk_levels = {
-    'rocky': 0,
-    'wet': 1,
-    'narrow': 2
-}
-region_type = {
+REGION_TYPE = {
     0: 'rocky',
     1: 'wet',
     2: 'narrow'
 }
+
+GEAR_OPTIONS = {
+    'rocky': {'climbing', 'torch'},
+    'wet': {'climbing', 'neither'},
+    'narrow': {'torch', 'neither'}
+}
+
 cave = {}
 
-# two times ought to be enough for anybody
-for pos in (Coordinate(x, y) for x, y in product(range(target.y * 2), range(target.y * 2))):
-    if pos in (mouth, target):
+print('Generating map...')
+for pos in (Coordinate(x, y) for x, y in product(range(TARGET.y * 3), range(TARGET.y * 3))):
+    if pos in (MOUTH, TARGET):
         index = 0
     elif pos.y == 0:
         index = pos.x * 16807
@@ -51,20 +36,9 @@ for pos in (Coordinate(x, y) for x, y in product(range(target.y * 2), range(targ
     else:
         index = cave[pos.x - 1, pos.y].erosion * cave[pos.x, pos.y - 1].erosion
 
-    erosion = (index + depth) % 20183
+    erosion = (index + DEPTH) % 20183
 
-    cave[pos] = Region(region_type[erosion % 3], index, erosion)
-
-gear_options = {
-    'rocky': {'climbing', 'torch'},
-    'wet': {'climbing', 'neither'},
-    'narrow': {'torch', 'neither'}
-}
-
-queue = deque()
-equipped = 'torch'
-queue.append(('torch', mouth, 0))
-quickest = {('torch', mouth): 0}
+    cave[pos] = Region(REGION_TYPE[erosion % 3], index, erosion)
 
 
 def adjacents(pos):
@@ -75,35 +49,34 @@ def adjacents(pos):
 
 
 def enqueue(to, equipped, time):
-    if ('torch', target) in quickest and time > quickest[('torch', target)]:
+    if ('torch', TARGET) in quickest and time > quickest[('torch', TARGET)]:
         return
     if (equipped, to) not in quickest or quickest[(equipped, to)] > time:
         queue.append((equipped, to, time))
-        for gear in gear_options[cave[to].type]:
+        for gear in GEAR_OPTIONS[cave[to].type]:
             dtime = time if gear == equipped else time + 7
             if (equipped, to) not in quickest or quickest[(equipped, to)] > dtime:
                 quickest[(equipped, to)] = dtime
 
 
-print('Searching')
-seen = set()
-n = 0
+print('Searching...')
+queue = deque()
+equipped = 'torch'
+queue.append(('torch', MOUTH, 0))
+quickest = {('torch', MOUTH): 0}
 while queue:
     equipped, coordinate, time = queue.popleft()
-    if n % 10000 == 0:
-        print(len(queue), coordinate[0], coordinate[1], equipped)
-    n += 1
 
-    if coordinate == target:
+    if coordinate == TARGET:
         dtime = time if equipped == 'torch' else time + 7
-        if ('torch', target) in quickest and quickest[('torch', target)] > dtime:
-            quickest[('torch', target)] = dtime
+        if ('torch', TARGET) in quickest and quickest[('torch', TARGET)] > dtime:
+            quickest[('torch', TARGET)] = dtime
 
     for adjacent in adjacents(coordinate):
-        if equipped in gear_options[cave[adjacent].type]:
+        if equipped in GEAR_OPTIONS[cave[adjacent].type]:
             enqueue(adjacent, equipped, time + 1)
-    for gear in gear_options[cave[coordinate].type]:
+    for gear in GEAR_OPTIONS[cave[coordinate].type]:
         if gear != equipped:
             enqueue(coordinate, gear, time + 7)
 
-print(quickest[('torch', target)])
+print(quickest[('torch', TARGET)])

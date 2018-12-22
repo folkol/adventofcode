@@ -1,7 +1,6 @@
 from collections import namedtuple, deque
 # from dataclasses import make_dataclass
 from itertools import product
-from pprint import pprint
 
 Coordinate = namedtuple('Coordinate', ('x', 'y'))
 
@@ -67,31 +66,6 @@ equipped = 'torch'
 queue.append(('torch', mouth, 0))
 quickest = {('torch', mouth): 0}
 
-# upper bound
-time = 0
-x = 0
-for y in range(1, target[1] + 1):
-    if equipped not in gear_options[cave[x, y].type]:
-        time += 7
-        equipped = gear_options[cave[x, y].type].copy().pop()
-    time += 1
-    print(x, y)
-
-y = target[1]
-for x in range(1, target[0] + 1):
-    if equipped not in gear_options[cave[x, y].type]:
-        time += 7
-        equipped = gear_options[cave[x, y].type].copy().pop()
-    time += 1
-    print(x, y)
-
-if equipped != 'torch':
-    time += 7
-
-quickest[('torch', target)] = time
-
-pprint(quickest)
-
 
 def adjacents(pos):
     x, y = pos
@@ -101,7 +75,7 @@ def adjacents(pos):
 
 
 def enqueue(to, equipped, time):
-    if time > quickest[('torch', target)]:
+    if ('torch', target) in quickest and time > quickest[('torch', target)]:
         return
     if (equipped, to) not in quickest or quickest[(equipped, to)] > time:
         queue.append((equipped, to, time))
@@ -117,13 +91,13 @@ n = 0
 while queue:
     equipped, coordinate, time = queue.popleft()
     if n % 10000 == 0:
-        print(len(queue), *coordinate, equipped, sep='\t')
+        print(len(queue), coordinate[0], coordinate[1], equipped)
     n += 1
 
-
     if coordinate == target:
-        # print('Found target after', time, 'minutes')
-        quickest[('torch', target)] = time if equipped == 'torch' else time + 7
+        dtime = time if equipped == 'torch' else time + 7
+        if ('torch', target) in quickest and quickest[('torch', target)] > dtime:
+            quickest[('torch', target)] = dtime
 
     for adjacent in adjacents(coordinate):
         if equipped in gear_options[cave[adjacent].type]:
@@ -132,14 +106,4 @@ while queue:
         if gear != equipped:
             enqueue(coordinate, gear, time + 7)
 
-# for y in range(60):
-#     for x in range(60):
-#         cur = quickest.get(('torch', (x, y)))
-#         if cur:
-#             print(f'{str(cur):3s}', end='')
-#         else:
-#             print(f'   ', end='')
-#
-#     print()
-# print()
-print(quickest[('torch', target)])  # 1366 is too high
+print(quickest[('torch', target)])

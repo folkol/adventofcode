@@ -1,7 +1,10 @@
 import re
 from dataclasses import make_dataclass
+from itertools import count
 
-Unit = make_dataclass('Unit', ['number', 'hp', 'extras', 'dmg', 'dmg_type', 'initiative'])
+Unit = make_dataclass('Unit', ['id', 'number', 'hp', 'extras', 'dmg', 'dmg_type', 'initiative'])
+
+ids = count()
 
 
 def parse_units(f):
@@ -19,7 +22,7 @@ def parse_units(f):
         else:
             extras = None
         combat = re.match(r'with an attack that does (\d+) (\w+) damage at initiative (\d+)', line)
-        units.append(Unit(*base.groups(), extras, *combat.groups()))
+        units.append(Unit(next(ids), *base.groups(), extras, *combat.groups()))
     return units
 
 

@@ -82,8 +82,7 @@ while True:
         if defender is None:
             continue
 
-        dmg = expected_damage(attacker)(defender)
-        dealt = dmg[0] // int(defender.hp)
+        dealt = expected_damage(attacker)(defender)[0] // defender.hp
         print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
         defender.number -= dealt
 

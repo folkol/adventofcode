@@ -1,7 +1,6 @@
 import re
 from dataclasses import make_dataclass
 from itertools import count
-from pprint import pprint
 
 Unit = make_dataclass('Unit',
                       ['army', 'id', 'number', 'hp', 'immunities', 'weaknesses', 'dmg', 'dmg_type', 'initiative'])
@@ -26,7 +25,7 @@ def parse_units(f):
                 if extra.startswith('weak to'):
                     weaknesses = extra[len('weak to '):].split(', ')
                 if extra.startswith('immune to '):
-                    immunities = extra[len('immune to '):].split(',')
+                    immunities = extra[len('immune to '):].split(', ')
             line = line[m.span()[1]:]
         combat = re.match(r'with an attack that does (\d+) (\w+) damage at initiative (\d+)', line)
         dmg, dmg_type, initiative = combat.groups()
@@ -62,9 +61,9 @@ def select_target(attackers, defenders, targets):
                        reverse=True):
 
         enemies = sorted((d for d in defenders if d.id not in targets.values() and d.army != unit.army),
-                         key=lambda u: (expected_damage(unit)(u), u.dmg * u.number, u.initiative),
+                         key=expected_damage(unit),
                          reverse=True)
-        if enemies:
+        if enemies and expected_damage(unit)(enemies[0])[0] > 0:
             targets[unit.id] = enemies[0].id
 
 
@@ -74,8 +73,9 @@ while True:
     select_target(immune_system, infection, targets)
     select_target(infection, immune_system, targets)
 
-    for attacker in sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True):
-        if attacker.hp <= 0:
+    l = sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True)
+    for attacker in l:
+        if attacker.number <= 0:
             continue
         defender = next((unit for unit in (*immune_system, *infection) if unit.id == targets.get(attacker.id, None)),
                         None)
@@ -89,8 +89,11 @@ while True:
     immune_system = [u for u in immune_system if u.number > 0]
     infection = [u for u in infection if u.number > 0]
 
-    if not immune_system or not infection:
+    if not immune_system:
+        print(sum(int(n.number) for n in infection))
+        print(*(n.number for n in infection))
         break
-
-pprint(immune_system)
-pprint(infection)
+    elif not infection:
+        print(sum(int(n.number) for n in immune_system))
+        print(*(n.number for n in immune_system))
+        break

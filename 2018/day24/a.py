@@ -64,7 +64,6 @@ def select_target(attackers, defenders, targets):
 def play(immune_system, infection):
     while True:
         targets = {}
-        print('\nROUND')
         select_target(immune_system, infection, targets)
         select_target(infection, immune_system, targets)
 
@@ -79,7 +78,6 @@ def play(immune_system, infection):
                 continue
 
             dealt = expected_damage(attacker, defender) // defender.hp
-            print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
             defender.number -= dealt
 
         immune_system = [u for u in immune_system if u.number > 0]
@@ -95,4 +93,4 @@ with open('units.dat') as f:
     immune_system = parse_units(f)
     infection = parse_units(f)
 
-assert play(immune_system, infection) == 16090
+print(play(immune_system, infection))

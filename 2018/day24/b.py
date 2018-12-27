@@ -124,5 +124,7 @@ for boost in count():
                  in infection]
     win, units = fight(defenders, attackers, boost)
     if win:
-        print(sum(int(n.number) for n in immune_system))
+        i = sum(int(n.number) for n in units)
+        assert i == 8291, immune_system
+        print(i)
         break

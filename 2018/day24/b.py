@@ -2,9 +2,7 @@ import re
 from dataclasses import make_dataclass
 from itertools import count
 
-Unit = make_dataclass('Unit',
-                      ['army', 'id', 'number', 'hp', 'immunities', 'weaknesses', 'dmg', 'dmg_type', 'initiative'])
-
+Unit = make_dataclass('Unit', 'army id number hp immunities weaknesses dmg dmg_type initiative'.split())
 ids = count()
 
 
@@ -16,6 +14,7 @@ def parse_units(f):
             break
         base = re.match(r'(\d+) units each with (\d+) hit points ', line)
         line = line[base.span()[1]:]
+        number, hp = base.groups()
         m = re.match(r'\((.*)\) ', line)
         immunities = weaknesses = []
         if m:
@@ -29,63 +28,48 @@ def parse_units(f):
             line = line[m.span()[1]:]
         combat = re.match(r'with an attack that does (\d+) (\w+) damage at initiative (\d+)', line)
         dmg, dmg_type, initiative = combat.groups()
-        units.append(Unit(army, next(ids), *(int(g) for g in base.groups()), immunities, weaknesses, int(dmg), dmg_type,
+        units.append(Unit(army,
+                          next(ids),
+                          int(number),
+                          int(hp),
+                          immunities,
+                          weaknesses,
+                          int(dmg),
+                          dmg_type,
                           int(initiative)))
     return units
 
 
-with open('units.dat') as f:
-    immune_system = parse_units(f)
-    infection = parse_units(f)
-
-
-def expected_damage(unit):
-    def inner(enemy):
-        if unit.dmg_type in enemy.immunities:
-            ret = 0, int(enemy.number) * int(enemy.dmg) * 2, int(enemy.initiative)
-        elif unit.dmg_type in enemy.weaknesses:
-            ret = int(unit.number) * int(unit.dmg) * 2, int(enemy.number) * int(enemy.dmg), int(enemy.initiative)
-        else:
-            ret = int(unit.number) * int(unit.dmg), int(enemy.number) * int(enemy.dmg), int(enemy.initiative)
-        # print(f'{unit.id} would deal {enemy.id} {ret[0]} damage')
-        return ret
-
-    return inner
-
-
-# while True:
+def expected_damage(unit, enemy):
+    if unit.dmg_type in enemy.immunities:
+        return 0
+    elif unit.dmg_type in enemy.weaknesses:
+        return unit.number * unit.dmg * 2
+    else:
+        return unit.number * unit.dmg
 
 
 def select_target(attackers, defenders, targets):
-    for unit in sorted(attackers, key=lambda unit: (int(unit.number) * int(unit.dmg), int(unit.initiative)),
+    for unit in sorted(attackers,
+                       key=lambda u: (int(u.number) * int(u.dmg), int(u.initiative)),
                        reverse=True):
 
-        enemies = sorted((d
-                          for d in defenders
-                          if d.id not in targets.values()
-                          and d.army != unit.army
-                          and expected_damage(unit)(d)[0] > 0),
-                         key=expected_damage(unit),
+        enemies = sorted((d for d in defenders if d.id not in targets.values() and d.army != unit.army),
+                         key=lambda u: (expected_damage(unit, u), u.number * u.dmg, u.initiative),
                          reverse=True)
-        if enemies and expected_damage(unit)(enemies[0])[0] > 0:
+        if enemies and expected_damage(unit, enemies[0]) > 0:
             targets[unit.id] = enemies[0].id
 
 
-def fight(immune_system, infection, boost=0):
-    for unit in immune_system:
-        unit.dmg += boost
+def fight(immune_system, infection):
     while True:
         blood_drewn = False
-        # print(*immune_system)
-        # print(*infection)
 
         targets = {}
-        print('\nROUND', boost)
         select_target(immune_system, infection, targets)
         select_target(infection, immune_system, targets)
 
-        l = sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True)
-        for attacker in l:
+        for attacker in sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True):
             if attacker.number <= 0:
                 continue
             defender = next(
@@ -94,8 +78,7 @@ def fight(immune_system, infection, boost=0):
             if defender is None:
                 continue
 
-            dealt = expected_damage(attacker)(defender)[0] // defender.hp
-            print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
+            dealt = expected_damage(attacker, defender) // defender.hp
             if dealt > 0:
                 blood_drewn = True
             defender.number -= dealt
@@ -104,25 +87,26 @@ def fight(immune_system, infection, boost=0):
         infection = [u for u in infection if u.number > 0]
 
         if not immune_system:
-            print(sum(int(n.number) for n in infection))
-            print(*(n.number for n in infection))
             return False, []
         elif not infection:
-            print(sum(int(n.number) for n in immune_system))
-            print(*(n.number for n in immune_system))
             return True, immune_system
         elif not blood_drewn:
             return False, []
 
 
-# fight(immune_system, infection, 1570)
+with open('units.dat') as f:
+    immune_system = parse_units(f)
+    infection = parse_units(f)
 
 for boost in count():
-    defenders = [Unit(u.army, u.id, u.number, u.hp, u.immunities, u.weaknesses, u.dmg, u.dmg_type, u.initiative) for u
+    print('Boost', boost)
+    defenders = [Unit(u.army, u.id, u.number, u.hp, u.immunities, u.weaknesses, u.dmg + boost, u.dmg_type, u.initiative)
+                 for u
                  in immune_system]
-    attackers = [Unit(u.army, u.id, u.number, u.hp, u.immunities, u.weaknesses, u.dmg, u.dmg_type, u.initiative) for u
+    attackers = [Unit(u.army, u.id, u.number, u.hp, u.immunities, u.weaknesses, u.dmg, u.dmg_type, u.initiative)
+                 for u
                  in infection]
-    win, units = fight(defenders, attackers, boost)
+    win, units = fight(defenders, attackers)
     if win:
         i = sum(int(n.number) for n in units)
         assert i == 8291, immune_system

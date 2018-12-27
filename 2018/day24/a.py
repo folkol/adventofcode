@@ -40,19 +40,13 @@ def parse_units(f):
     return units
 
 
-with open('units.dat') as f:
-    immune_system = parse_units(f)
-    infection = parse_units(f)
-
-
 def expected_damage(unit, enemy):
     if unit.dmg_type in enemy.immunities:
-        ret = 0
+        return 0
     elif unit.dmg_type in enemy.weaknesses:
-        ret = unit.number * unit.dmg * 2
+        return unit.number * unit.dmg * 2
     else:
-        ret = unit.number * unit.dmg
-    return ret
+        return unit.number * unit.dmg
 
 
 def select_target(attackers, defenders, targets):
@@ -96,5 +90,9 @@ def play(immune_system, infection):
         elif not infection:
             return sum(int(n.number) for n in immune_system)
 
+
+with open('units.dat') as f:
+    immune_system = parse_units(f)
+    infection = parse_units(f)
 
 assert play(immune_system, infection) == 16090

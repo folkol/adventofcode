@@ -67,33 +67,34 @@ def select_target(attackers, defenders, targets):
             targets[unit.id] = enemies[0].id
 
 
-while True:
-    targets = {}
-    print('\nROUND')
-    select_target(immune_system, infection, targets)
-    select_target(infection, immune_system, targets)
+def play(immune_system, infection):
+    while True:
+        targets = {}
+        print('\nROUND')
+        select_target(immune_system, infection, targets)
+        select_target(infection, immune_system, targets)
 
-    l = sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True)
-    for attacker in l:
-        if attacker.number <= 0:
-            continue
-        defender = next((unit for unit in (*immune_system, *infection) if unit.id == targets.get(attacker.id, None)),
-                        None)
-        if defender is None:
-            continue
+        l = sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True)
+        for attacker in l:
+            if attacker.number <= 0:
+                continue
+            defender = next(
+                (unit for unit in (*immune_system, *infection) if unit.id == targets.get(attacker.id, None)),
+                None)
+            if defender is None:
+                continue
 
-        dealt = expected_damage(attacker)(defender)[0] // defender.hp
-        print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
-        defender.number -= dealt
+            dealt = expected_damage(attacker)(defender)[0] // defender.hp
+            print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
+            defender.number -= dealt
 
-    immune_system = [u for u in immune_system if u.number > 0]
-    infection = [u for u in infection if u.number > 0]
+        immune_system = [u for u in immune_system if u.number > 0]
+        infection = [u for u in infection if u.number > 0]
 
-    if not immune_system:
-        print(sum(int(n.number) for n in infection))
-        print(*(n.number for n in infection))
-        break
-    elif not infection:
-        print(sum(int(n.number) for n in immune_system))
-        print(*(n.number for n in immune_system))
-        break
+        if not immune_system:
+            return sum(int(n.number) for n in infection)
+        elif not infection:
+            return sum(int(n.number) for n in immune_system)
+
+
+assert play(immune_system, infection) == 16090

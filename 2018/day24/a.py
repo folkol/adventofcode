@@ -2,9 +2,7 @@ import re
 from dataclasses import make_dataclass
 from itertools import count
 
-Unit = make_dataclass('Unit',
-                      ['army', 'id', 'number', 'hp', 'immunities', 'weaknesses', 'dmg', 'dmg_type', 'initiative'])
-
+Unit = make_dataclass('Unit', 'army id number hp immunities weaknesses dmg dmg_type initiative'.split())
 ids = count()
 
 
@@ -16,6 +14,7 @@ def parse_units(f):
             break
         base = re.match(r'(\d+) units each with (\d+) hit points ', line)
         line = line[base.span()[1]:]
+        number, hp = base.groups()
         m = re.match(r'\((.*)\) ', line)
         immunities = weaknesses = []
         if m:
@@ -29,7 +28,14 @@ def parse_units(f):
             line = line[m.span()[1]:]
         combat = re.match(r'with an attack that does (\d+) (\w+) damage at initiative (\d+)', line)
         dmg, dmg_type, initiative = combat.groups()
-        units.append(Unit(army, next(ids), *(int(g) for g in base.groups()), immunities, weaknesses, int(dmg), dmg_type,
+        units.append(Unit(army,
+                          next(ids),
+                          int(number),
+                          int(hp),
+                          immunities,
+                          weaknesses,
+                          int(dmg),
+                          dmg_type,
                           int(initiative)))
     return units
 
@@ -39,31 +45,25 @@ with open('units.dat') as f:
     infection = parse_units(f)
 
 
-def expected_damage(unit):
-    def inner(enemy):
-        if unit.dmg_type in enemy.immunities:
-            ret = 0, int(enemy.number) * int(enemy.dmg) * 2, int(enemy.initiative)
-        elif unit.dmg_type in enemy.weaknesses:
-            ret = int(unit.number) * int(unit.dmg) * 2, int(enemy.number) * int(enemy.dmg), int(enemy.initiative)
-        else:
-            ret = int(unit.number) * int(unit.dmg), int(enemy.number) * int(enemy.dmg), int(enemy.initiative)
-        # print(f'{unit.id} would deal {enemy.id} {ret[0]} damage')
-        return ret
-
-    return inner
-
-
-# while True:
+def expected_damage(unit, enemy):
+    if unit.dmg_type in enemy.immunities:
+        ret = 0
+    elif unit.dmg_type in enemy.weaknesses:
+        ret = unit.number * unit.dmg * 2
+    else:
+        ret = unit.number * unit.dmg
+    return ret
 
 
 def select_target(attackers, defenders, targets):
-    for unit in sorted(attackers, key=lambda unit: (int(unit.number) * int(unit.dmg), int(unit.initiative)),
+    for unit in sorted(attackers,
+                       key=lambda u: (int(u.number) * int(u.dmg), int(u.initiative)),
                        reverse=True):
 
         enemies = sorted((d for d in defenders if d.id not in targets.values() and d.army != unit.army),
-                         key=expected_damage(unit),
+                         key=lambda u: (expected_damage(unit, u), u.number * u.dmg, u.initiative),
                          reverse=True)
-        if enemies and expected_damage(unit)(enemies[0])[0] > 0:
+        if enemies and expected_damage(unit, enemies[0]) > 0:
             targets[unit.id] = enemies[0].id
 
 
@@ -74,17 +74,17 @@ def play(immune_system, infection):
         select_target(immune_system, infection, targets)
         select_target(infection, immune_system, targets)
 
-        l = sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True)
-        for attacker in l:
+        for attacker in sorted((*immune_system, *infection), key=lambda unit: unit.initiative, reverse=True):
             if attacker.number <= 0:
                 continue
-            defender = next(
-                (unit for unit in (*immune_system, *infection) if unit.id == targets.get(attacker.id, None)),
-                None)
+            defender = next((unit
+                             for unit in (*immune_system, *infection)
+                             if unit.id == targets.get(attacker.id, None)),
+                            None)
             if defender is None:
                 continue
 
-            dealt = expected_damage(attacker)(defender)[0] // defender.hp
+            dealt = expected_damage(attacker, defender) // defender.hp
             print(attacker.army, attacker.id, 'attacks', defender.id, min(defender.number, dealt))
             defender.number -= dealt
 

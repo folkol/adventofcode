@@ -1,11 +1,8 @@
+def fuel(w):
+    while (w := w // 3 - 2) > 0:
+        yield w
+
 with open('input.dat') as f:
-    data = [int(d.rstrip()) for d in f]
+    modules = [int(line) for line in f]
 
-fuel = 0
-for d in data:
-    d = d // 3 - 2
-    while d > 0:
-        fuel += d
-        d = d // 3 - 2
-
-print(fuel)
+print(sum(part for module in modules for part in fuel(module)))  # 5162216

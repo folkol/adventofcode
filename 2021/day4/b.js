@@ -1,9 +1,7 @@
 let transpose = m => m[0].map((x, i) => m.map(x => x[i]));
 let sum = arr => arr.reduce((acc, n) => acc + n);
 
-let lines = require('fs')
-    .readFileSync('input.dat', 'utf-8')
-    .split(/\r?\n/);
+let lines = require('fs').readFileSync('input.dat', 'utf-8').split(/\r?\n/);
 let numbers = lines.shift().split(',').map(n => parseInt(n));
 lines.shift();  // blank line
 
@@ -14,13 +12,10 @@ for (let line of lines) {
         boards.push(nextBoard);
         nextBoard = {rows: []};
     } else {
-        let items = line.trim()
-            .split(/ +/)
-            .map(n => parseInt(n));
+        let items = line.trim().split(/ +/).map(n => parseInt(n));
         nextBoard.rows.push(items);
     }
 }
-
 
 let marked = [];
 for (let draw of numbers) {
@@ -29,7 +24,7 @@ for (let draw of numbers) {
         for (let line of [...board.rows, ...transpose(board.rows)]) {
             if (line.every(n => marked.indexOf(n) !== -1)) {
                 if (boards.filter(board => !board.completed).length === 1) {  // last one
-                    let unmarked = board.rows.flatMap(row => row).filter(n => marked.indexOf(n) === -1);
+                    let unmarked = board.rows.flat().filter(n => marked.indexOf(n) === -1);
                     let score = draw * sum(unmarked);
                     console.log(score);
                     process.exit(0);

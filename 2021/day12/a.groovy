@@ -26,10 +26,12 @@ class Graph {
 }
 
 Graph g = new Graph();
-new File('input.dat').each { line ->
-    def (String a, String b) = line.split('-')
+System.in.eachLine {
+    def (String a, String b) = it.tokenize('-')
     g.addEdge(a, b)
     g.addEdge(b, a)
 }
 
-print(g.paths('start', 'end').size())
+def paths = g.paths('start', 'end')
+//paths.each this.&println
+print(paths.size())

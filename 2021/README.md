@@ -14,3 +14,4 @@ One language per day... at least for part a!
 - [Day 12, Groovy](day12/a.groovy)
 - [Day 13, Clojure](day13/a.clj)
 - [Day 14, F#](day14/a.fsx)
+- [Day 15, Go](day15/a.go)

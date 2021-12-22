@@ -1,0 +1,16 @@
+One language per day... at least for part a!
+
+- [Day 1, Python](day1/a.py)
+- [Day 2, Shell](day2/a.sh)
+- [Day 3, APL](day3/a.apl)
+- [Day 4, JavaScript](day4/a.js)
+- [Day 5, PHP](day5/a.php)
+- [Day 6, Haskell](day6/a.hs)
+- [Day 7, R](day7/a.R)
+- [Day 8, Perl](day8/a.pl)
+- [Day 9, Emacs Lisp](day9/a.el)
+- [Day 10, C](day10/a.c)
+- [Day 11, Ruby](day11/a.rb)
+- [Day 12, Groovy](day12/a.groovy)
+- [Day 13, Clojure](day13/a.clj)
+- [Day 14, F#](day14/a.fsx)

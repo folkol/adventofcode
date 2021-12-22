@@ -1,7 +1,7 @@
 One language per day... at least for part a!
 
 - [Day 1, Python](day1/a.py)
-- [Day 2, Shell](day2/a.sh)
+- [Day 2, Bash](day2/a.sh)
 - [Day 3, APL](day3/a.apl)
 - [Day 4, JavaScript](day4/a.js)
 - [Day 5, PHP](day5/a.php)

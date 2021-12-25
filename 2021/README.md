@@ -16,3 +16,4 @@ One language per day... at least for part a!
 - [Day 14, F#](day14/a.fsx)
 - [Day 15, Go](day15/a.go)
 - [Day 16, Lua](day16/a.lua)
+- [Day 17, (G)AWK](day17/a.gawk)

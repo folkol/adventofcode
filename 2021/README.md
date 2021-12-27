@@ -17,3 +17,4 @@ One language per day... at least for part a!
 - [Day 15, Go](day15/a.go)
 - [Day 16, Lua](day16/a.lua)
 - [Day 17, (G)AWK](day17/a.gawk)
+- [Day 18, C#](day18/a.cs)

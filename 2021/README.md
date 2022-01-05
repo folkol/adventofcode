@@ -18,3 +18,4 @@ One language per day... at least for part a!
 - [Day 16, Lua](day16/a.lua)
 - [Day 17, (G)AWK](day17/a.gawk)
 - [Day 18, C#](day18/a.cs)
+- [Day 19, Kotlin](day19/a.kt)

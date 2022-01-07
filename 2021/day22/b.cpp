@@ -63,7 +63,7 @@ struct CompressedCoords {
 };
 
 // TODO: Replace this search with a prepopulated map of compressed coords -> state...
-bool state_for(std::vector<Cube> steps, Point &point) {
+bool state_for(std::vector<Cube> &steps, Point &point) {
     for (auto &&step = steps.rbegin(); step != steps.rend(); ++step) {
         if (step->contains(point)) {
             return step->state;
@@ -99,7 +99,7 @@ int main() {
 
     long n = 0;
     CompressedCoords cc(steps);
-    cc.subdivisions([&n, steps](Cube subdivision) {
+    cc.subdivisions([&n, &steps](Cube &&subdivision) {
         n += state_for(steps, subdivision.p1) * subdivision.volume();
     });
     std::cout << n << "\n";

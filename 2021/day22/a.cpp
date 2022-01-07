@@ -32,18 +32,13 @@ int main() {
     while (std::cin) {
         // on numbers=-57795..-6158,y=29564..72030,z=20435..90618
         std::cin >> status;
-        std::cin.ignore(3);
-        std::cin >> numbers[0];
-        std::cin.ignore(2);
-        std::cin >> numbers[1];
-        std::cin.ignore(3);
-        std::cin >> numbers[2];
-        std::cin.ignore(2);
-        std::cin >> numbers[3];
-        std::cin.ignore(3);
-        std::cin >> numbers[4];
-        std::cin.ignore(2);
-        std::cin >> numbers[5] >> std::ws;
+        std::cin.ignore(3); std::cin >> numbers[0];
+        std::cin.ignore(2); std::cin >> numbers[1];
+        std::cin.ignore(3); std::cin >> numbers[2];
+        std::cin.ignore(2); std::cin >> numbers[3];
+        std::cin.ignore(3); std::cin >> numbers[4];
+        std::cin.ignore(2); std::cin >> numbers[5];
+        std::cin >> std::ws;
         steps.emplace_back(Cube{
             status == "on",
             numbers[0],

@@ -22,3 +22,4 @@ One language per day... at least for part a!
 - [Day 20, Swift](day20/a.swift)
 - [Day 21, Scala](day21/a.scala)
 - [Day 22, C++](day22/a.cpp)
+- [Day 23, Rust](day23/a.rs)

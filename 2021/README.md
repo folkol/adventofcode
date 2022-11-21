@@ -24,4 +24,4 @@ One language per day... at least for part a!
 - [Day 22, C++](day22/a.cpp)
 - [Day 23, Rust](day23/a.rs)
 - [Day 24, Pen and Paper](day24/a.txt)
-- [Day 24, Java](day25/a.java)
+- [Day 25, Java](day25/a.java)

@@ -9,18 +9,19 @@ function priority(item: string) {
     }
 }
 
-let rucksacks = fs.readFileSync('3.dat', 'utf-8').split('\n');
 let prioritySum = 0;
+let rucksacks = fs.readFileSync('3.dat', 'utf-8').trimEnd().split('\n');
 while (rucksacks.length) {
-    let typeCounts: Record<string, number> = {};
-    let group = rucksacks.splice(-3);
+    let group = rucksacks.splice(-3)
+    let seenTypes: Record<string, number> = {};
     for (let rucksack of group) {
-        for (let type of new Set(rucksack)) {
-            let typeCount = typeCounts[type] || 0;
-            if (typeCount === 2) {
+        let uniqueTypes = new Set(rucksack);
+        for (let type of uniqueTypes) {
+            let peersWithType = seenTypes[type] || 0;
+            if (peersWithType === 2) {
                 prioritySum += priority(type);
             }
-            typeCounts[type] = typeCount + 1;
+            seenTypes[type] = peersWithType + 1;
         }
     }
 }

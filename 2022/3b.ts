@@ -9,15 +9,15 @@ function priority(item: string) {
     }
 }
 
-function intersect(a: Set<string>, b: Set<string>) {
-    return new Set([...a].filter(e => b.has(e)));
+function intersect(a: Set<string>, b: string) {
+    return new Set([...a].filter(e => b.includes(e)));
 }
 
 let prioritySum = 0;
 let rucksacks = fs.readFileSync('3.dat', 'utf-8').trimEnd().split('\n');
 while (rucksacks.length) {
     let group = rucksacks.splice(-3)
-    let [commonItem] = group.reduce((acc, x) => intersect(acc, new Set(x)), new Set(group[0]));
+    let [commonItem, ..._] = group.reduce(intersect, new Set(group[0]));
     prioritySum += priority(commonItem);
 }
 

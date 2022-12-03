@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import {strict as assert} from 'node:assert';
 
 function priority(item: string) {
-    return '.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(item[0]);
+    return 'øabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(item[0]);
 }
 
 let data = fs.readFileSync('3.dat', 'utf-8');

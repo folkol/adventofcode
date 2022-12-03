@@ -16,6 +16,5 @@ while (rucksacks.length) {
     let commonItem = group.reduce(intersect);
     prioritySum += priority(commonItem);
 }
-
 console.log(prioritySum);
 assert(prioritySum === 2864)

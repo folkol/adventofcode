@@ -5,8 +5,8 @@ function priority(item: string) {
     return 'øabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(item[0]);
 }
 
-let data = fs.readFileSync('3.dat', 'utf-8');
 let prioritySum = 0;
+let data = fs.readFileSync('3.dat', 'utf-8');
 data.split('\n').forEach(line => {
     let compartments: Record<string, number> = {};
     let compartmentSize = line.length / 2;

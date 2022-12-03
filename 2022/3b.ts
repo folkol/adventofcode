@@ -9,24 +9,11 @@ function priority(item: string) {
     }
 }
 
-function* groups(items: string[]) {
-    let group: string[] = [];
-    for (let item of items) {
-        group.push(item);
-        if (group.length === 3) {
-            yield group
-            group = []
-        }
-    }
-    if (group.length > 0) {
-        yield group;
-    }
-}
-
-let data = fs.readFileSync('3.dat', 'utf-8');
+let rucksacks = fs.readFileSync('3.dat', 'utf-8').split('\n');
 let prioritySum = 0;
-for (let group of groups(data.split('\n'))) {
+while (rucksacks.length) {
     let typeCounts: Record<string, number> = {};
+    let group = rucksacks.splice(-3);
     for (let rucksack of group) {
         for (let type of new Set(rucksack)) {
             let typeCount = typeCounts[type] || 0;

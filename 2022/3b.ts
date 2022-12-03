@@ -9,21 +9,16 @@ function priority(item: string) {
     }
 }
 
+function intersect(a: Set<string>, b: Set<string>) {
+    return new Set([...a].filter(e => b.has(e)));
+}
+
 let prioritySum = 0;
 let rucksacks = fs.readFileSync('3.dat', 'utf-8').trimEnd().split('\n');
 while (rucksacks.length) {
     let group = rucksacks.splice(-3)
-    let seenTypes: Record<string, number> = {};
-    for (let rucksack of group) {
-        let uniqueTypes = new Set(rucksack);
-        for (let type of uniqueTypes) {
-            let peersWithType = seenTypes[type] || 0;
-            if (peersWithType === 2) {
-                prioritySum += priority(type);
-            }
-            seenTypes[type] = peersWithType + 1;
-        }
-    }
+    let [commonItem] = group.reduce((acc, x) => intersect(acc, new Set(x)), new Set(group[0]));
+    prioritySum += priority(commonItem);
 }
 
 console.log(prioritySum);

@@ -2,11 +2,7 @@ import * as fs from 'fs';
 import {strict as assert} from 'node:assert';
 
 function priority(item: string) {
-    if (item.toLowerCase() === item) {
-        return 1 + item.charCodeAt(0) - 'a'.charCodeAt(0);
-    } else {
-        return 27 + item.charCodeAt(0) - 'A'.charCodeAt(0);
-    }
+    return '.abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'.indexOf(item[0]);
 }
 
 function intersect(a: string, b: string): string {

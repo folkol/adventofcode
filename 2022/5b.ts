@@ -2,7 +2,7 @@ import * as fs from "fs";
 import {strict as assert} from "node:assert"
 
 let stacks: Record<string, string[]> = {}
-let lines = fs.readFileSync('4.dat', 'utf-8').trimEnd().split('\n');
+let lines = fs.readFileSync('5.dat', 'utf-8').trimEnd().split('\n');
 lines.forEach(line => {
     if (line.startsWith('move')) {
         let [n, from, to] = line.match(/\d+/g) as string[];

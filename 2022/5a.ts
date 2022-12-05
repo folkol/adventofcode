@@ -2,14 +2,11 @@ import * as fs from "fs";
 import {strict as assert} from "node:assert"
 
 let stacks: Record<string, string[]> = {}
-let lines = fs.readFileSync('4.dat', 'utf-8').trimEnd().split('\n');
+let lines = fs.readFileSync('5.dat', 'utf-8').trimEnd().split('\n');
 lines.forEach(line => {
     if (line.startsWith('move')) {
-        let [n, from, to] = line.match(/\d+/g) as string[];
-        for (let i = 0; i < Number(n); i++) {
-            let items = stacks[from].pop() as string;
-            stacks[to].push(items)
-        }
+        let [n, from, to] = line.match(/\d+/g)?.map(Number) as number[];
+        stacks[to].push(...stacks[from].splice(-Number(n)).reverse());
     } else {
         let crates = line.matchAll(/[A-Z]/g);
         for (let crate of crates) {

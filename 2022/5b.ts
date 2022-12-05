@@ -6,7 +6,8 @@ let lines = fs.readFileSync('5.dat', 'utf-8').trimEnd().split('\n');
 lines.forEach(line => {
     if (line.startsWith('move')) {
         let [n, from, to] = line.match(/\d+/g)?.map(Number) as number[];
-        stacks[to - 1].push(...stacks[from - 1].splice(-Number(n)));
+        let crates = stacks[from - 1].splice(-Number(n));
+        stacks[to - 1].push(...crates);
     } else {
         for (let i = 0, stack = 0; i < line.length; stack += 1, i = stack * 4) {
             if (line[i] === '[') {

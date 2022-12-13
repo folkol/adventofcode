@@ -3,33 +3,6 @@ import * as assert from "assert";
 
 type node = number | node[]
 
-function parseNumber(line: string, pos: number): [node, number] {
-    let s = line.slice(pos);
-    let m = s.match(/\d+/)[0];
-    return [Number(m), pos + m.length]
-}
-
-function parseList(line: string, pos: number): [node, number] {
-    let elements = []
-    while (line[pos] !== ']') {
-        let [child, nextPos] = parse(line, pos);
-        elements.push(child)
-        if (line[nextPos] === ',') {
-            nextPos++
-        }
-        pos = nextPos;
-    }
-    return [elements, pos + 1]
-}
-
-function parse(line: string, pos: number): [node, number] {
-    if (line[pos] === '[') {
-        return parseList(line, pos + 1);
-    } else {
-        return parseNumber(line, pos);
-    }
-}
-
 function ordered(left: number | node[], right: number | node[]) {
     if (typeof left === 'number' && typeof right === 'number') {
         if (left < right) {
@@ -63,7 +36,7 @@ let ast = fs.readFileSync('13.dat', 'utf-8')
     .trimEnd()
     .split('\n')
     .filter(line => line)
-    .map(line => parse(line, 0)[0])
+    .map(line => JSON.parse(line))
 ast.push([[2]])
 ast.push([[6]])
 

@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, io};
 
 fn recover(line: &str) -> u32 {
     let first = line.chars().find(char::is_ascii_digit).unwrap();
@@ -6,10 +6,7 @@ fn recover(line: &str) -> u32 {
     format!("{}{}", first, last).parse().unwrap()
 }
 
-fn main() {
-    let answer: u32 = fs::read_to_string("input.dat").unwrap()
-        .lines()
-        .map(recover)
-        .sum();
-    println!("{}", answer);
+fn main() -> Result<(), io::Error> {
+    let answer: u32 = fs::read_to_string("input.dat")?.lines().map(recover).sum();
+    Ok(println!("{}", answer))
 }

@@ -39,7 +39,5 @@ fn main() -> std::io::Result<()> {
         .map(parse_game)
         .filter_map(maybe_id)
         .sum();
-    println!("{}", ans);
-    assert_eq!(ans, 2006);
-    Ok(())
+    Ok(println!("{}", ans))
 }

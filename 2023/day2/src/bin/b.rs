@@ -40,7 +40,5 @@ fn main() -> std::io::Result<()> {
         .map(parse_game)
         .map(calculate_power)
         .sum();
-    println!("{}", ans);
-    assert_eq!(ans, 84911);
-    Ok(())
+    Ok(println!("{}", ans))
 }

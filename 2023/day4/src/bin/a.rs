@@ -33,5 +33,5 @@ fn main() {
     };
     let ans: u32 = cards.iter().map(points).sum();
     assert_eq!(ans, 32001);
-    dbg!(ans);
+    println!("{ans}");
 }

@@ -1,6 +1,6 @@
 use std::fs;
 
-type Card = (u32, Vec<u32>, Vec<u32>);
+type Card = (usize, Vec<u32>, Vec<u32>);
 
 fn as_numbers(winners: &str) -> Vec<u32> {
     winners
@@ -22,38 +22,22 @@ fn parse_card(line: &str) -> Card {
 fn main() {
     let data = fs::read_to_string("input.dat").unwrap();
     let cards: Vec<_> = data.lines().map(parse_card).collect();
-    let points = |(_, winners, mine): &Card| {
-        let num_hits = mine.iter().filter(|n| winners.contains(n)).count() as u32;
-        if num_hits > 0 {
-            u32::pow(2, num_hits - 1)
-        } else {
-            num_hits
-        }
+    let card_and_copies = |card: &Card| {
+        let (card_id, winners, mine) = card;
+        let num_wins = mine.iter().filter(|n| winners.contains(n)).count();
+        (*card_id, num_wins)
     };
-    let cards_and_wins: Vec<_> = cards
+    let cards_with_copies: Vec<_> = cards
         .iter()
-        .map(|(card_id, winners, mine)| {
-            let num_wins = mine.iter().filter(|x| winners.contains(x)).count();
-            (
-                *card_id,
-                num_wins,
-            )
-        })
+        .map(card_and_copies)
         .collect();
 
-    let mut queue: Vec<_> = cards_and_wins.to_vec();
-    let mut final_cards = Vec::new();
+    let mut queue: Vec<_> = cards_with_copies.to_vec();
+    let mut ans = 0;
     while let Some((card_id, wins)) = queue.pop() {
-        let wins = wins as u32;
-        final_cards.push(card_id);
-        let new_cards = wins.min(cards_and_wins.len() as u32 - card_id);
-        for card in card_id + 1..=card_id + new_cards {
-            let x1 = cards_and_wins.iter().nth(card as usize - 1).unwrap();
-            queue.push(*x1);
-        }
+        queue.extend(cards_with_copies.iter().skip(card_id).take(wins));
+        ans += 1;
     }
-
-    let ans = final_cards.len();
     assert_eq!(ans, 5037841);
-    dbg!(ans);
+    println!("{ans}");
 }

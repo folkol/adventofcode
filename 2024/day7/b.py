@@ -7,7 +7,7 @@ def any_combo(target, operands, x=None):
     first, *rest = operands
     return (
             any_combo(target, rest, (x or 0) + first)
-            or any_combo(target, rest, (x or 0) * first)
+            or any_combo(target, rest, (x or 1) * first)
             or any_combo(target, rest, int((str(x or "")) + str(first)))
     )
 

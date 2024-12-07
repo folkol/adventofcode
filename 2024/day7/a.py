@@ -11,4 +11,4 @@ def any_combo(target, operands, x=None):
 with open('input.dat') as f:
     equations = [[int(x) for x in re.findall(r'\d+', line)] for line in f]
 
-print(sum((v for v, *numbers in equations if any_combo(v, numbers))))
+print(sum(v for v, *numbers in equations if any_combo(v, numbers)))

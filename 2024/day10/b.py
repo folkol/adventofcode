@@ -16,7 +16,6 @@ def slope(cur_x, cur_y, dest_x, dest_y):
 
 def trailhead_rating(x, y):
     num_nines = 0
-    seen = set()
     queue = [(x, y)]
     while queue:
         cur_x, cur_y = queue.pop()
@@ -24,7 +23,7 @@ def trailhead_rating(x, y):
             num_nines += 1
         for dx, dy in NEIGHBORS:
             candidate = cur_x + dx, cur_y + dy
-            if candidate not in seen and slope(cur_x, cur_y, *candidate) == 1:
+            if slope(cur_x, cur_y, *candidate) == 1:
                 queue.append(candidate)
     return num_nines
 

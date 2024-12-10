@@ -13,7 +13,6 @@ def slope(cur_x, cur_y, dest_x, dest_y):
 
 
 def trailhead_score(x, y):
-    seen = set()
     peaks = set()
     queue = [(x, y)]
     while queue:
@@ -23,7 +22,7 @@ def trailhead_score(x, y):
             continue
         for dx, dy in NEIGHBORS:
             candidate = cur_x + dx, cur_y + dy
-            if candidate not in seen and slope(cur_x, cur_y, *candidate) == 1:
+            if slope(cur_x, cur_y, *candidate) == 1:
                 queue.append(candidate)
     return len(peaks)
 

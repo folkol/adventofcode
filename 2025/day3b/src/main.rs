@@ -28,5 +28,5 @@ fn main() {
         .lines()
         .map(max_joltage)
         .sum();
-    println!("{:?}", n); // 173065202451341
+    println!("{:?}", n);
 }
